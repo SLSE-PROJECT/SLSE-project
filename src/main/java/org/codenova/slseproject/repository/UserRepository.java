@@ -7,4 +7,6 @@ import org.codenova.slseproject.entity.User;
 public interface UserRepository {
 
     int create(User user);
+
+    User selectByEmail(String email);
 }
