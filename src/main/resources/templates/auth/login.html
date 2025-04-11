@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>CHAMPION-SHOP</title>
+</head>
+<body>
+<form th:action="@{auth/login}" method="post">
+  <div>이메일<br/>
+    <input type="text" name="email">
+  </div>
+  <div>비밀번호<br/>
+    <input type="password" name="password">
+  </div>
+  <button type="submit">로그인</button>
+</form>
+<script></script>
+</body>
+</html>

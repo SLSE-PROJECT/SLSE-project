@@ -1,5 +1,7 @@
 package org.codenova.slseproject.controller;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -40,7 +42,7 @@ public class Auth {
     @PostMapping("/login")
     public String loginPost(@RequestParam("password") String password,
                             @ModelAttribute @Valid EmailCheck email, BindingResult result,
-                            Model m, HttpSession session) {
+                            Model m, HttpSession session, HttpServletResponse response) {
 
         if (result.hasErrors()) {
             return "auth/login";
@@ -53,8 +55,12 @@ public class Auth {
             return "auth/login";
         }
 
-        session.setAttribute("user", user);
+        Cookie cookie = new Cookie("loginEmail", user.getEmail());
+        cookie.setPath("/");
+        cookie.setMaxAge(60 * 60 * 24 * 365 * 10);
+        response.addCookie(cookie);
 
+        session.setAttribute("user", user);
         return "redirect:/";
     }
 }
