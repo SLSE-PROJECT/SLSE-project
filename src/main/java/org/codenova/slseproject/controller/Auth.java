@@ -164,7 +164,7 @@ public class Auth {
         } else {
             session.setAttribute("user", found);
         }
-        return "redirect:/index";
+        return "redirect:/";
     }
     /*
     @GetMapping("/google/callback")
