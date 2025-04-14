@@ -74,4 +74,61 @@ public class Auth {
         return "redirect:/";
     }
 
+    //=========================================================KAKAO====================================================
+    @GetMapping("/kakao/callback")
+    public String kakaoCallBack(@RequestParam("code") String code,
+                                HttpSession session
+    ) throws JsonProcessingException {
+
+        KakaoTokenResponse response =kakaoApiService.exchangeToken(code);
+
+        DecodedJWT decodedJWT = JWT.decode(response.getIdToken());
+
+        String sub = decodedJWT.getClaim("sub").asString();
+        String nickname = decodedJWT.getClaim("nickname").asString();
+        String picture = decodedJWT.getClaim("picture").asString();
+
+        User found = userRepository.selectByProviderAndProviderId("kakao", sub);
+        if(found != null){
+            session.setAttribute("user", found);
+        }else{
+            found = User.builder().provider("kakao")
+                    .providerId(sub).nickname(nickname).build();
+
+            userRepository.create(found);
+            session.setAttribute("user", found);
+        }
+
+        return "redirect:/";
+    }
+    //==================================================================================================================
+
+    //=========================================================NAVER====================================================
+    @GetMapping("/naver/callback")
+    public String naverCallBack(@RequestParam("code") String code,
+                                @RequestParam("state") String state,
+                                HttpSession session)
+            throws JsonProcessingException {
+
+        NaverTokenResponse response = naverApiService.exchageToken(code, state);
+
+        NaverProfileResponse profileResponse = naverApiService.exchageProfile(response.getAccessToken());
+        String id = profileResponse.getId();
+        String nickname = profileResponse.getNickname();
+        String profileImage = profileResponse.getProfileImage();
+
+        User found = userRepository.selectByProviderAndProviderId("naver", id);
+        if(found != null){
+            session.setAttribute("user", found);
+        }else{
+            found = User.builder().provider("naver")
+                    .providerId(id).nickname(nickname).build();
+
+            userRepository.create(found);
+            session.setAttribute("user", found);
+        }
+
+        return "redirect:/";
+    }
+    //==================================================================================================================
 }
