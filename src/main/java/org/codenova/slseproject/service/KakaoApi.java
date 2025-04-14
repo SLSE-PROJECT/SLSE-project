@@ -17,19 +17,18 @@ import org.springframework.web.client.RestTemplate;
 @AllArgsConstructor
 @Slf4j
 public class KakaoApi {
-
     private ObjectMapper objectMapper;
 
     public KakaoTokenResponse exchangeToken(String code) throws JsonProcessingException {
         RestTemplate restTemplate = new RestTemplate();
 
         MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
-        headers.set("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
+        headers.add("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
 
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("grant_type", "authorization_code");
-        body.add("client_id", "55f63a576a464aeba4a2dfbcebca2540");
-        body.add("redirect_uri", "http://192.168.10.152:8080/auth/kakao/callback");
+        body.add("client_id", "9d7d57ad6e80992d91fff47b4240e032");
+        body.add("redirect_uri", "http://192.168.10.96:8080/auth/kakao/callback");
         body.add("code", code);
 
         ResponseEntity<String> response = restTemplate.exchange("https://kauth.kakao.com/oauth/token",
@@ -37,9 +36,9 @@ public class KakaoApi {
                 new HttpEntity<>(body, headers),
                 String.class
         );
-
+        // log.info("Kakao API response: {}", response.getBody());
         KakaoTokenResponse kakaoTokenResponse =
-        objectMapper.readValue(response.getBody(), KakaoTokenResponse.class);
+                objectMapper.readValue(response.getBody(), KakaoTokenResponse.class);
 
         return kakaoTokenResponse;
     }

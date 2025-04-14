@@ -51,15 +51,16 @@ public class Auth {
     }
 
     @GetMapping("/login")
-    public String login(Model model) {
-        model.addAttribute("googleClientId", "YOUR_GOOGLE_CLIENT_ID");
-        model.addAttribute("googleRedirectUri", "YOUR_GOOGLE_REDIRECT_URL");
+    public String loginHandle(Model model) {
 
-        model.addAttribute("kakaoClientId", "YOUR_KAKAO_CLIENT_ID");
-        model.addAttribute("kakaoRedirectUri", "YOUR_KAKAO_REDIRECT_URI");
 
-        model.addAttribute("naverClientId", "YOUR_NAVER_CLIENT_ID");
-        model.addAttribute("naverRedirectUri", "YOUR_NAVER_REDIRECT_URI");
+        model.addAttribute("kakaoClientId", "9d7d57ad6e80992d91fff47b4240e032");
+        model.addAttribute("kakaoRedirectUri", "http://192.168.10.96:8080/auth/kakao/callback");
+
+
+        model.addAttribute("naverClientId", "UlyY91gdd4hMzViz__oP");
+        model.addAttribute("naverRedirectUri", "http://192.168.10.96:8080/auth/naver/callback");
+
 
         return "auth/login";
     }
@@ -92,27 +93,41 @@ public class Auth {
 
     //=========================================================KAKAO====================================================
     @GetMapping("/kakao/callback")
-    public String kakaoCallBack(@RequestParam("code") String code,
-                                HttpSession session
+    public String kakaoCallbackHandle(@RequestParam("code") String code,
+                                      HttpSession session
     ) throws JsonProcessingException {
+        log.info("카카오 콜백 - code: {}", code);
 
-        KakaoTokenResponse response =kakaoApiService.exchangeToken(code);
+        // 1. 카카오 토큰 교환
+        KakaoTokenResponse response = kakaoApiService.exchangeToken(code);
+        log.info("KakaoTokenResponse: {}", response);
 
-        DecodedJWT decodedJWT = JWT.decode(response.getIdToken());
+        // 2. idToken null 체크
+        String idToken = response.getIdToken();
+        if (idToken == null || idToken.isEmpty()) {
+            log.error("id_token is missing in Kakao response");
+            throw new IllegalStateException("Kakao id_token is null or empty");
+        }
 
+        // 3. JWT 디코딩
+        DecodedJWT decodedJWT = JWT.decode(idToken);
         String sub = decodedJWT.getClaim("sub").asString();
-        String nickname = decodedJWT.getClaim("nickname").asString();
-        String picture = decodedJWT.getClaim("picture").asString();
+        String nickname = decodedJWT.getClaim("nickname").asString(); // 카카오에서는 대부분 "nickname"이 아님. 확인 필요
 
-        User found = userRepository.selectByProviderAndProviderId("kakao", sub);
-        if(found != null){
-            session.setAttribute("user", found);
-        }else{
-            found = User.builder().provider("kakao")
-                    .providerId(sub).nickname(nickname).build();
+        log.info("Decoded JWT - sub: {}, nickname: {}", sub, nickname);
 
-            userRepository.create(found);
+        // 4. 사용자 조회 또는 생성
+        User found = userRepository.selectByProviderAndProviderId("KAKAO", sub);
+        if (found != null) {
             session.setAttribute("user", found);
+        } else {
+            User user = User.builder()
+                    .provider("KAKAO")
+                    .providerId(sub)
+                    .nickname(nickname)
+                    .build();
+            userRepository.create(user);
+            session.setAttribute("user", user);
         }
 
         return "redirect:/";
@@ -120,31 +135,39 @@ public class Auth {
     //==================================================================================================================
 
     @GetMapping("/naver/callback")
-    public String naverCallBack(@RequestParam("code") String code,
-                                @RequestParam("state") String state,
-                                HttpSession session)
-            throws JsonProcessingException {
+    public String naverCallbackHandle(@RequestParam("code") String code,
+                                      @RequestParam("state") String state, HttpSession session) throws JsonProcessingException {
+        // log.info("code = {}, state = {}", code, state);
 
-        NaverTokenResponse response = naverApiService.exchageToken(code, state);
+        NaverTokenResponse tokenResponse =
+                naverApiService.exchangeToken(code, state);
 
-        NaverProfileResponse profileResponse = naverApiService.exchageProfile(response.getAccessToken());
-        String id = profileResponse.getId();
-        String nickname = profileResponse.getNickname();
-        String profileImage = profileResponse.getProfileImage();
+        // log.info("accessToken = {}", tokenResponse.getAccessToken());
 
-        User found = userRepository.selectByProviderAndProviderId("naver", id);
-        if(found != null){
-            session.setAttribute("user", found);
-        }else{
-            found = User.builder().provider("naver")
-                    .providerId(id).nickname(nickname).build();
 
-            userRepository.create(found);
+        NaverProfileResponse profileResponse
+                = naverApiService.exchangeProfile(tokenResponse.getAccessToken());
+        log.info("profileResponse id = {}", profileResponse.getId());
+        log.info("profileResponse nickname = {}", profileResponse.getNickname());
+        log.info("profileResponse profileImage = {}", profileResponse.getProfileImage());
+
+        User found = userRepository.selectByProviderAndProviderId("NAVER", profileResponse.getId());
+        if (found == null) {
+            User user = User.builder()
+                    .nickname(profileResponse.getNickname())
+                    .provider("NAVER")
+                    .providerId(profileResponse.getId())
+                    .build();
+
+            userRepository.create(user);
+            session.setAttribute("user", user);
+
+        } else {
             session.setAttribute("user", found);
         }
-
-        return "redirect:/";
+        return "redirect:/index";
     }
+    /*
     @GetMapping("/google/callback")
     public String googleCallback(@RequestParam String code, HttpSession session, HttpServletResponse response) {
         try {
@@ -174,5 +197,9 @@ public class Auth {
             return "redirect:/auth/login";
         }
 
+
+
     }
+
+     */
 }
