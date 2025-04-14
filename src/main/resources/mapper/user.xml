@@ -5,4 +5,10 @@
 <mapper namespace="org.codenova.slseproject.repository.UserRepository">
     <insert id="create">
     </insert>
+    <select id="selectByEmail" resultType="user">
+        select * from user where email = #{email}
+    </select>
+    <select id="selectByProviderAndProviderId" resultType="user">
+        select * from user where provider = #{provider} and provider_id = #{providerId}
+    </select>
 </mapper>

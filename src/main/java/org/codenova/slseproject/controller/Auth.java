@@ -1,5 +1,8 @@
 package org.codenova.slseproject.controller;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -8,6 +11,11 @@ import lombok.AllArgsConstructor;
 import org.codenova.slseproject.entity.User;
 import org.codenova.slseproject.repository.UserRepository;
 import org.codenova.slseproject.request.EmailCheck;
+import org.codenova.slseproject.service.KakaoApi;
+import org.codenova.slseproject.service.NaverApi;
+import org.codenova.slseproject.vo.KakaoTokenResponse;
+import org.codenova.slseproject.vo.NaverProfileResponse;
+import org.codenova.slseproject.vo.NaverTokenResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -19,6 +27,8 @@ import org.springframework.web.bind.annotation.*;
 public class Auth {
 
     private UserRepository userRepository;
+    private KakaoApi kakaoApiService;
+    private NaverApi naverApiService;
 
     @GetMapping("/signup")
     public String signup() {
@@ -63,4 +73,5 @@ public class Auth {
         session.setAttribute("user", user);
         return "redirect:/";
     }
+
 }
