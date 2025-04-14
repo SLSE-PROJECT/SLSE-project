@@ -2,18 +2,77 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>CHAMPION-SHOP</title>
+    <title>CHAMPION-SHOP | 로그인</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .login-container {
+            width: 400px;
+            margin: 50px auto;
+            padding: 30px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .login-container input {
+            width: 90%;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        .social-login {
+            margin-top: 20px;
+        }
+        .social-login img {
+            width: 250px;
+            margin: 10px 0;
+        }
+    </style>
 </head>
 <body>
-<form th:action="@{auth/login}" method="post">
-  <div>이메일<br/>
-    <input type="text" name="email">
-  </div>
-  <div>비밀번호<br/>
-    <input type="password" name="password">
-  </div>
-  <button type="submit">로그인</button>
-</form>
-<script></script>
+<div class="login-container">
+    <h2>로그인</h2>
+    <form th:action="@{/auth/login}" method="post">
+        <div>
+            <input type="text" name="email" placeholder="이메일">
+        </div>
+        <div>
+            <input type="password" name="password" placeholder="비밀번호">
+        </div>
+        <button type="submit">로그인</button>
+    </form>
+
+    <div class="social-login">
+        <h4>소셜 로그인</h4>
+
+        <!-- 카카오 로그인 -->
+        <a th:href="@{https://kauth.kakao.com/oauth/authorize(
+            client_id=${kakaoClientId},
+            redirect_uri=${kakaoRedirectUri},
+            response_type='code')}">
+            <img th:src="@{/icons/kakao_login.png}" alt="카카오 로그인"/>
+        </a>
+
+        <!-- 네이버 로그인 -->
+        <a th:href="@{https://nid.naver.com/oauth2.0/authorize(
+            client_id=${naverClientId},
+            redirect_uri=${naverRedirectUri},
+            response_type='code',
+            state='codenova')}">
+            <img th:src="@{/icons/naver_login.png}" alt="네이버 로그인"/>
+        </a>
+
+        <!-- 구글 로그인 -->
+        <a th:href="@{https://accounts.google.com/o/oauth2/v2/auth(
+            client_id=${googleClientId},
+            redirect_uri=${googleRedirectUri},
+            response_type='code',
+            scope='openid%20email%20profile')}">
+            <img th:src="@{/icons/google_login.png}" alt="구글 로그인"/>
+        </a>
+    </div>
+
+    <p>아직 계정이 없으신가요? <a th:href="@{/auth/signup}">회원가입</a></p>
+</div>
 </body>
 </html>
