@@ -58,7 +58,7 @@ public class Auth {
         model.addAttribute("kakaoRedirectUri", "http://192.168.10.96:8080/auth/kakao/callback");
 
 
-        model.addAttribute("naverClientId", "UlyY91gdd4hMzViz__oP");
+        model.addAttribute("naverClientId", "cs0eCk_B4O1jRJH2A4OY");
         model.addAttribute("naverRedirectUri", "http://192.168.10.96:8080/auth/naver/callback");
 
 
@@ -149,7 +149,6 @@ public class Auth {
                 = naverApiService.exchangeProfile(tokenResponse.getAccessToken());
         log.info("profileResponse id = {}", profileResponse.getId());
         log.info("profileResponse nickname = {}", profileResponse.getNickname());
-        log.info("profileResponse profileImage = {}", profileResponse.getProfileImage());
 
         User found = userRepository.selectByProviderAndProviderId("NAVER", profileResponse.getId());
         if (found == null) {
