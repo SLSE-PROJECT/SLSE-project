@@ -8,11 +8,14 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.codenova.slseproject.entity.User;
 import org.codenova.slseproject.repository.UserRepository;
 import org.codenova.slseproject.request.EmailCheck;
+import org.codenova.slseproject.service.GoogleApi;
 import org.codenova.slseproject.service.KakaoApi;
 import org.codenova.slseproject.service.NaverApi;
+import org.codenova.slseproject.vo.GoogleTokenResponse;
 import org.codenova.slseproject.vo.KakaoTokenResponse;
 import org.codenova.slseproject.vo.NaverProfileResponse;
 import org.codenova.slseproject.vo.NaverTokenResponse;
@@ -24,11 +27,13 @@ import org.springframework.web.bind.annotation.*;
 @Controller
 @RequestMapping("/auth")
 @AllArgsConstructor
+@Slf4j
 public class Auth {
 
     private UserRepository userRepository;
     private KakaoApi kakaoApiService;
     private NaverApi naverApiService;
+    private GoogleApi googleApiService;
 
     @GetMapping("/signup")
     public String signup() {
@@ -46,8 +51,20 @@ public class Auth {
     }
 
     @GetMapping("/login")
-    public void login() {
+    public String loginHandle(Model model) {
+
+
+        model.addAttribute("kakaoClientId", "9d7d57ad6e80992d91fff47b4240e032");
+        model.addAttribute("kakaoRedirectUri", "http://192.168.10.96:8080/auth/kakao/callback");
+
+
+        model.addAttribute("naverClientId", "UlyY91gdd4hMzViz__oP");
+        model.addAttribute("naverRedirectUri", "http://192.168.10.96:8080/auth/naver/callback");
+
+
+        return "auth/login";
     }
+
 
     @PostMapping("/login")
     public String loginPost(@RequestParam("password") String password,
@@ -76,59 +93,113 @@ public class Auth {
 
     //=========================================================KAKAO====================================================
     @GetMapping("/kakao/callback")
-    public String kakaoCallBack(@RequestParam("code") String code,
-                                HttpSession session
+    public String kakaoCallbackHandle(@RequestParam("code") String code,
+                                      HttpSession session
     ) throws JsonProcessingException {
+        log.info("카카오 콜백 - code: {}", code);
 
-        KakaoTokenResponse response =kakaoApiService.exchangeToken(code);
+        // 1. 카카오 토큰 교환
+        KakaoTokenResponse response = kakaoApiService.exchangeToken(code);
+        log.info("KakaoTokenResponse: {}", response);
 
-        DecodedJWT decodedJWT = JWT.decode(response.getIdToken());
+        // 2. idToken null 체크
+        String idToken = response.getIdToken();
+        if (idToken == null || idToken.isEmpty()) {
+            log.error("id_token is missing in Kakao response");
+            throw new IllegalStateException("Kakao id_token is null or empty");
+        }
 
+        // 3. JWT 디코딩
+        DecodedJWT decodedJWT = JWT.decode(idToken);
         String sub = decodedJWT.getClaim("sub").asString();
-        String nickname = decodedJWT.getClaim("nickname").asString();
-        String picture = decodedJWT.getClaim("picture").asString();
+        String nickname = decodedJWT.getClaim("nickname").asString(); // 카카오에서는 대부분 "nickname"이 아님. 확인 필요
 
-        User found = userRepository.selectByProviderAndProviderId("kakao", sub);
-        if(found != null){
-            session.setAttribute("user", found);
-        }else{
-            found = User.builder().provider("kakao")
-                    .providerId(sub).nickname(nickname).build();
+        log.info("Decoded JWT - sub: {}, nickname: {}", sub, nickname);
 
-            userRepository.create(found);
+        // 4. 사용자 조회 또는 생성
+        User found = userRepository.selectByProviderAndProviderId("KAKAO", sub);
+        if (found != null) {
             session.setAttribute("user", found);
+        } else {
+            User user = User.builder()
+                    .provider("KAKAO")
+                    .providerId(sub)
+                    .nickname(nickname)
+                    .build();
+            userRepository.create(user);
+            session.setAttribute("user", user);
         }
 
         return "redirect:/";
     }
     //==================================================================================================================
 
-    //=========================================================NAVER====================================================
     @GetMapping("/naver/callback")
-    public String naverCallBack(@RequestParam("code") String code,
-                                @RequestParam("state") String state,
-                                HttpSession session)
-            throws JsonProcessingException {
+    public String naverCallbackHandle(@RequestParam("code") String code,
+                                      @RequestParam("state") String state, HttpSession session) throws JsonProcessingException {
+        // log.info("code = {}, state = {}", code, state);
 
-        NaverTokenResponse response = naverApiService.exchageToken(code, state);
+        NaverTokenResponse tokenResponse =
+                naverApiService.exchangeToken(code, state);
 
-        NaverProfileResponse profileResponse = naverApiService.exchageProfile(response.getAccessToken());
-        String id = profileResponse.getId();
-        String nickname = profileResponse.getNickname();
-        String profileImage = profileResponse.getProfileImage();
+        // log.info("accessToken = {}", tokenResponse.getAccessToken());
 
-        User found = userRepository.selectByProviderAndProviderId("naver", id);
-        if(found != null){
-            session.setAttribute("user", found);
-        }else{
-            found = User.builder().provider("naver")
-                    .providerId(id).nickname(nickname).build();
 
-            userRepository.create(found);
+        NaverProfileResponse profileResponse
+                = naverApiService.exchangeProfile(tokenResponse.getAccessToken());
+        log.info("profileResponse id = {}", profileResponse.getId());
+        log.info("profileResponse nickname = {}", profileResponse.getNickname());
+        log.info("profileResponse profileImage = {}", profileResponse.getProfileImage());
+
+        User found = userRepository.selectByProviderAndProviderId("NAVER", profileResponse.getId());
+        if (found == null) {
+            User user = User.builder()
+                    .nickname(profileResponse.getNickname())
+                    .provider("NAVER")
+                    .providerId(profileResponse.getId())
+                    .build();
+
+            userRepository.create(user);
+            session.setAttribute("user", user);
+
+        } else {
             session.setAttribute("user", found);
         }
-
-        return "redirect:/";
+        return "redirect:/index";
     }
-    //==================================================================================================================
+    /*
+    @GetMapping("/google/callback")
+    public String googleCallback(@RequestParam String code, HttpSession session, HttpServletResponse response) {
+        try {
+
+            GoogleTokenResponse tokenResponse = googleApiService.exchangeToken(code);
+            log.info("Access Token: {}", tokenResponse.getAccessToken());
+
+            String accessToken = tokenResponse.getAccessToken();
+
+            User user = userRepository.selectByEmail(accessToken);
+            if (user == null) {
+                user = new User();
+                user.setEmail(accessToken);
+                userRepository.create(user);
+            }
+
+            Cookie cookie = new Cookie("loginEmail", user.getEmail());
+            cookie.setPath("/");
+            cookie.setMaxAge(60 * 60 * 24 * 365 * 10);
+            response.addCookie(cookie);
+
+            session.setAttribute("user", user);
+
+            return "redirect:/";
+        } catch (Exception e) {
+            log.error("Google OAuth error", e);
+            return "redirect:/auth/login";
+        }
+
+
+
+    }
+
+     */
 }
