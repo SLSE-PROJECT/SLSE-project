@@ -15,7 +15,7 @@ import java.util.List;
 @RequestMapping("/champion")
 public class ChampionController {
 
-    private final ChampionAPIService championAPIService;
+    private ChampionAPIService championAPIService;
 
     public ChampionController(ChampionAPIService championAPIService) {
         this.championAPIService = championAPIService;
