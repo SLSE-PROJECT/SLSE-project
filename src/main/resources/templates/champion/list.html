@@ -3,40 +3,142 @@
 <head>
     <meta charset="UTF-8">
     <title>CHAMPION-SHOP</title>
+    <style>
+        #champion-list {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr); /* 1줄에 6개 */
+            gap: 20px; /* 간격 */
+            padding: 20px;
+        }
+
+        .champion-card {
+            text-align: center;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .champion-card:hover {
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+
+        #overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0,0,0,0.5);
+            display: none;
+            z-index: 99;
+        }
+
+        #champion {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            width: 700px;
+            border-radius: 8px;
+            display: none;
+            z-index: 100;
+        }
+
+        .modal-header {
+            background: black;
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-body {
+            display: flex;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        .modal-left img {
+            width: 200px;
+        }
+
+        .login-btn {
+            margin-top: 20px;
+            background: black;
+            color: white;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
-<div style="display: flex; flex-wrap: wrap" id="champion-list">
-    <div th:each="one : ${champions}">
-        <img th:src="${one.imageUrl}" style="width:100px;" th:attr="data-name=${one.name}, data-title=${one.title}, data-blurb=${one.blurb}, data-image=${one.imageUrl}">
-        <div th:text="${one.name}"></div>
-    </div>
-    <div style="position: absolute; background-color: white; display: none" id="champion">
+
+<div id="champion-list">
+    <div class="champion-card" th:each="one : ${champions}"
+         th:attr="data-name=${one.name}, data-title=${one.title}, data-blurb=${one.blurb}, data-image=${one.imageUrl}">
+        <img th:src="${one.imageUrl}" style="width:100px; height:100px; object-fit:cover;">
+        <div th:text="${one.name}" style="margin-top: 5px;"></div>
     </div>
 </div>
+
+<div id="overlay"></div>
+
+<div id="champion">
+    <div class="modal-header">
+        <h2 id="champion-name"></h2>
+        <button onclick="closeModal()" style="background:none; border:none; color:white; font-size:20px; cursor:pointer;">X</button>
+    </div>
+    <div class="modal-body">
+        <div class="modal-left">
+            <img id="champion-img">
+            <h3 id="champion-title"></h3>
+        </div>
+        <div class="modal-right">
+            <p id="champion-blurb"></p>
+
+            <!-- 로그인 안했을때만 보임 -->
+            <button id="login-btn" onclick="location.href='/auth/login'" class="login-btn" style="display:none">
+                로그인 하러가기
+            </button>
+        </div>
+    </div>
+</div>
+
 <script>
-    document.getElementById("champion-list").onclick = function (event) {
-        if (event.target.tagName === 'IMG') {
-        const name = event.target.dataset.name;
-        const title = event.target.dataset.title;
-        const blurb = event.target.dataset.blurb;
-        const image = event.target.dataset.image;
+    const overlay = document.getElementById("overlay");
+    const championDiv = document.getElementById("champion");
 
-        const targetDiv = document.getElementById("champion");
-
-        targetDiv.innerHTML =
-            '<img src="' + image + '" style="width:100px;"><br/>' +
-            '이름 : ' + name + '<br/>' +
-            '타이틀 : ' + title + '<br/>' +
-            '설명 : ' + blurb + '<br/>';
-        }
-
-        if (document.getElementById("champion").style.display === 'none') {
-            document.getElementById("champion").style.display = '';
-        } else if (document.getElementById("champion").style.display === '') {
-            document.getElementById("champion").style.display = 'none';
-        }
-        event.stopPropagation();
+    function closeModal(){
+        overlay.style.display = 'none';
+        championDiv.style.display = 'none';
     }
+
+    document.getElementById("champion-list").onclick = function (event) {
+            const name = event.target.dataset.name;
+            const title = event.target.dataset.title;
+            const blurb = event.target.dataset.blurb;
+            const image = event.target.dataset.image;
+
+            document.getElementById("champion-name").innerText = name;
+            document.getElementById("champion-title").innerText = title;
+            document.getElementById("champion-blurb").innerText = blurb;
+            document.getElementById("champion-img").src = image;
+
+            // 로그인 체크 예시 (true면 로그인 상태)
+            const isLogin = false;  // 실제 로그인 체크 변수 쓰면 됨
+            document.getElementById("login-btn").style.display = isLogin ? 'none' : '';
+
+            overlay.style.display = 'block';
+            championDiv.style.display = 'block';
+    }
+
+    overlay.onclick = closeModal;
 </script>
+
 </body>
 </html>
