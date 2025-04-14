@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>CHAMPION-SHOP</title>
+</head>
+<body>
+<div style="display: flex; flex-wrap: wrap" id="champion-list">
+    <div th:each="one : ${champions}">
+        <img th:src="${one.imageUrl}" style="width:100px;">
+        <div th:text="${one.name}"></div>
+        <div style="position: absolute; background-color: white; display: none" id="champion">
+            <img th:src="${one.imageUrl}" style="width:100px;"><br/>
+            이름 : <span th:text="${one.name}"/><br/>
+            타이틀 : <span th:text="${one.title}"/><br/>
+            설명 : <span th:text="${one.blurb}"/><br/>
+        </div>
+    </div>
+</div>
+<script>
+    document.getElementById("champion-list").onclick = function (event) {
+        if (document.getElementById("champion").style.display === 'none') {
+            document.getElementById("champion").style.display = '';
+        } else if (document.getElementById("champion").style.display === '') {
+            document.getElementById("champion").style.display = 'none';
+        }
+        event.stopPropagation();
+    }
+</script>
+</body>
+</html>
