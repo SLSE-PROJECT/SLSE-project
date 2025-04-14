@@ -46,23 +46,19 @@
         <h4>소셜 로그인</h4>
 
         <!-- 카카오 로그인 -->
-        <a th:href="@{https://kauth.kakao.com/oauth/authorize(
-            client_id=${kakaoClientId},
-            redirect_uri=${kakaoRedirectUri},
-            response_type='code')}">
-            <img th:src="@{/icons/kakao_login.png}" alt="카카오 로그인"/>
+        <a th:href="@{https://kauth.kakao.com/oauth/authorize(client_id=${kakaoClientId},
+  redirect_uri=${kakaoRedirectUri}, response_type='code')}">
+            <img th:src="@{/icons/kakao_login.png}"/>
         </a>
 
         <!-- 네이버 로그인 -->
-        <a th:href="@{https://nid.naver.com/oauth2.0/authorize(
-            client_id=${naverClientId},
-            redirect_uri=${naverRedirectUri},
-            response_type='code',
-            state='codenova')}">
-            <img th:src="@{/icons/naver_login.png}" alt="네이버 로그인"/>
+        <a th:href="@{https://nid.naver.com/oauth2.0/authorize
+        (client_id=${naverClientId}, redirect_uri=${naverRedirectUri}, response_type='code' ,state='codenova')}">
+            <img th:src="@{/icons/naver_login.png}"/>
         </a>
 
         <!-- 구글 로그인 -->
+        <!--
         <a th:href="@{https://accounts.google.com/o/oauth2/v2/auth(
             client_id=${googleClientId},
             redirect_uri=${googleRedirectUri},
@@ -71,6 +67,7 @@
             <img th:src="@{/icons/google_login.png}" alt="구글 로그인"/>
         </a>
     </div>
+    -->
 
     <p>아직 계정이 없으신가요? <a th:href="@{/auth/signup}">회원가입</a></p>
 </div>
