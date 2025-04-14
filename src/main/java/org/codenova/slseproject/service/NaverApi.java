@@ -28,8 +28,8 @@ public class NaverApi {
         MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("grant_type", "authorization_code");
-        body.add("client_id", "UlyY91gdd4hMzViz__oP");
-        body.add("client_secret", "MBG5GrNRd9");
+        body.add("client_id", "cs0eCk_B4O1jRJH2A4OY");
+        body.add("client_secret", "uoC_mHemOp");
         body.add("code", code);
         body.add("state", state);
         RestTemplate restTemplate = new RestTemplate();
