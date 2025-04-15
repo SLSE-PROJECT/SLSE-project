@@ -36,7 +36,7 @@ public class Profile{
 
         List<UserChampion> ownedChampions = userChampionRepository.findByUserId(userId);
 
-        // 처음 로그인한 경우에만 지급
+
         if (ownedChampions == null || ownedChampions.isEmpty()) {
             Champion[] allChampions = championAPIService.findAllChampion();
             List<Champion> championList = Arrays.asList(allChampions);
