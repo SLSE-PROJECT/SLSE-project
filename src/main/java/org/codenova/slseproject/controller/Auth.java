@@ -15,7 +15,6 @@ import org.codenova.slseproject.request.EmailCheck;
 import org.codenova.slseproject.service.GoogleApi;
 import org.codenova.slseproject.service.KakaoApi;
 import org.codenova.slseproject.service.NaverApi;
-import org.codenova.slseproject.vo.GoogleTokenResponse;
 import org.codenova.slseproject.vo.KakaoTokenResponse;
 import org.codenova.slseproject.vo.NaverProfileResponse;
 import org.codenova.slseproject.vo.NaverTokenResponse;

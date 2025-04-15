@@ -1,15 +1,9 @@
-package org.codenova.slseproject.entity;
+package org.codenova.slseproject.entity.vo;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class UserChampion {
+public class UserChampionAndPrice {
     private int id;
     private int userId;
     private String championId;
@@ -17,4 +11,5 @@ public class UserChampion {
     private String title;
     private String imageUrl;
     private String blurb;
+    private int price;
 }

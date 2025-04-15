@@ -1,6 +1,7 @@
 package org.codenova.slseproject.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import lombok.AllArgsConstructor;
 import org.codenova.slseproject.entity.Champion;
 import org.codenova.slseproject.entity.User;
 import org.codenova.slseproject.entity.UserChampion;
@@ -14,15 +15,11 @@ import org.springframework.web.bind.annotation.SessionAttribute;
 import java.util.*;
 
 @Controller
+@AllArgsConstructor
 public class Profile {
 
-    private final ChampionAPIService championAPIService;
-    private final UserChampionRepository userChampionRepository;
-
-    public Profile(ChampionAPIService championAPIService, UserChampionRepository userChampionRepository) {
-        this.championAPIService = championAPIService;
-        this.userChampionRepository = userChampionRepository;
-    }
+    private ChampionAPIService championAPIService;
+    private UserChampionRepository userChampionRepository;
 
     @GetMapping("/profile")
     public String profile(@SessionAttribute("user") Optional<User> userOpt, Model model) throws JsonProcessingException {
