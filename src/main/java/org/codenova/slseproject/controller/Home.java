@@ -1,6 +1,7 @@
 package org.codenova.slseproject.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import jakarta.servlet.http.HttpSession;
 import org.codenova.slseproject.entity.Champion;
 import org.codenova.slseproject.entity.User;
 import org.codenova.slseproject.service.ChampionAPIService;
@@ -33,5 +34,10 @@ public class Home {
         m.addAttribute("champions", championList);
 
         return "home";
+    }
+    @GetMapping("/auth/logout")
+    public String logout(HttpSession session) {
+        session.invalidate();  // 세션 초기화
+        return "redirect:/";   // 홈으로 이동
     }
 }

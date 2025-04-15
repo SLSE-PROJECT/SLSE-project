@@ -3,6 +3,8 @@ package org.codenova.slseproject.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.codenova.slseproject.entity.Champion;
 import org.codenova.slseproject.entity.User;
+import org.codenova.slseproject.entity.UserChampion;
+import org.codenova.slseproject.repository.UserChampionRepository;
 import org.codenova.slseproject.service.ChampionAPIService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,12 +14,14 @@ import org.springframework.web.bind.annotation.SessionAttribute;
 import java.util.*;
 
 @Controller
-public class Profile {
+public class Profile{
 
     private final ChampionAPIService championAPIService;
+    private final UserChampionRepository userChampionRepository;
 
-    public Profile(ChampionAPIService championAPIService) {
+    public Profile(ChampionAPIService championAPIService, UserChampionRepository userChampionRepository) {
         this.championAPIService = championAPIService;
+        this.userChampionRepository = userChampionRepository;
     }
 
     @GetMapping("/profile")
@@ -28,18 +32,34 @@ public class Profile {
         }
 
         User user = userOpt.get();
+        int userId = user.getId();
 
-        // 처음 접속한 유저라면 챔피언 5개 랜덤 지급
-        if (user.getChampions() == null || user.getChampions().isEmpty()) {
+        List<UserChampion> ownedChampions = userChampionRepository.findByUserId(userId);
+
+        // 처음 로그인한 경우에만 지급
+        if (ownedChampions == null || ownedChampions.isEmpty()) {
             Champion[] allChampions = championAPIService.findAllChampion();
             List<Champion> championList = Arrays.asList(allChampions);
             Collections.shuffle(championList);
-            List<Champion> selectedChampions = new ArrayList<>(championList.subList(0, 5));
-            user.setChampions(selectedChampions);  // 한 번만 저장
+            List<Champion> randomFive = championList.subList(0, 5);
+
+            List<UserChampion> toSave = new ArrayList<>();
+            for (Champion c : randomFive) {
+                UserChampion uc = new UserChampion();
+                uc.setUserId(userId);
+                uc.setChampionId(c.getId());
+                uc.setName(c.getName());
+                uc.setTitle(c.getTitle());
+                uc.setImageUrl(c.getImageUrl());
+                toSave.add(uc);
+            }
+
+            userChampionRepository.saveAll(userId, toSave);
+            ownedChampions = toSave;
         }
 
         model.addAttribute("user", user);
-        model.addAttribute("champions", user.getChampions());
+        model.addAttribute("champions", ownedChampions);
 
         return "profile";
     }

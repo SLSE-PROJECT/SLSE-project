@@ -156,12 +156,19 @@
         </a>
     </div>
 
-    <div style="display: flex; gap: 10px;">
+    <div th:if="${session.user == null}">
+        <form th:action="@{/auth/login}">
+            <button class="login-btn">로그인</button>
+        </form>
+    </div>
+
+    <div th:if="${session.user != null}" style="display: flex; gap: 10px;">
         <form th:action="@{/profile}">
             <button class="login-btn">프로필</button>
         </form>
-        <form th:action="@{/auth/login}">
-            <button class="login-btn">로그인</button>
+
+        <form th:action="@{/auth/logout}">
+            <button class="login-btn">로그아웃</button>
         </form>
     </div>
 </div>
