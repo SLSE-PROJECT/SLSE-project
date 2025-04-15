@@ -40,13 +40,13 @@ public class Home {
                         User user = null;
 
                         if (value.contains(":")) {
-                            // 소셜 로그인 (KAKAO:sub 또는 NAVER:id)
+
                             String[] parts = value.split(":");
                             String provider = parts[0];
                             String providerId = parts[1];
                             user = userRepository.selectByProviderAndProviderId(provider, providerId);
                         } else {
-                            // 일반 로그인
+
                             user = userRepository.selectByEmail(value);
                         }
 
