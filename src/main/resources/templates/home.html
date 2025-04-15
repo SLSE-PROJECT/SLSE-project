@@ -3,75 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>SLSE-SHOP</title>
-
-    <style>
-        * {margin: 0; padding: 0; box-sizing: border-box;}
-
-        body {font-family: sans-serif;}
-
-        .header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 80px;
-            background: #fff;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 40px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            z-index: 1000;
-        }
-
-        .logo img {height: 60px;}
-
-        .login-btn {padding: 8px 20px; background: black; color: white; border: none; border-radius: 4px; cursor: pointer;}
-
-        .banner-container {
-            margin-top: 80px;
-            width: 100%;
-            height: 200px;
-            overflow: hidden;
-            background: #eee;
-            position: relative;
-        }
-
-        .banner-slide {display: flex; transition: 0.5s;}
-
-        .banner-slide img {width: 100%; height: 200px; object-fit: cover;}
-
-        .banner-btn {position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.5); color: white; border: none; font-size: 30px; cursor: pointer; padding: 5px 10px;}
-
-        .banner-prev {left: 10px;}
-        .banner-next {right: 10px;}
-
-        .content-container {
-            display: grid;
-            grid-template-columns: 200px 1fr;
-        }
-
-        .category-box {width: 200px;}
-
-        .champion-list-box {
-            flex: 1;
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 20px;
-        }
-
-        .champion-card img {
-            width: 120px;
-            height: 120px;
-        }
-        .champion-card {
-            background: #f9f9f9;
-            border-radius: 10px;
-            box-shadow: 0 0 5px rgba(0,0,0,0.1);
-        }
-
-        .champion-card:hover {box-shadow: 0 0 10px rgba(0,0,0,0.2);}
-    </style>
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 
 <body>
@@ -95,25 +27,53 @@
 </div>
 
 <div class="content-container">
-    <div class="category-box">
-        <h3>카테고리</h3>
-        <ul>
-            <li>전체</li>
-            <li>탱커</li>
-            <li>딜러</li>
-            <li>서포터</li>
-        </ul>
+    <div class="category-wrap">
+        <div class="category-box" id="category-box">
+            <h3>카테고리</h3>
+            <ul>
+                <li>전체</li>
+                <li>원거리</li>
+                <li>근거리</li>
+            </ul>
+        </div>
+        <button id="toggle-btn" class="category-toggle-btn" onclick="toggleCategory()">◀</button>
     </div>
 
     <div class="champion-list-box" id="champion-list">
-        <div class="champion-card" th:each="one : ${champions}" th:attr="data-name=${one.name}, data-title=${one.title}, data-blurb=${one.blurb}, data-image=${one.imageUrl}">
-            <img th:src="${one.imageUrl}" style="width:100px; height:100px; object-fit:cover;">
-            <div th:text="${one.name}" style="margin-top:5px;"></div>
+        <div class="champion-card" th:each="one : ${champions}">
+            <img th:src="${one.imageUrl}">
+            <div th:text="${one.price}" style="margin-top:5px;"></div>
         </div>
     </div>
 </div>
 
+<div class="pagination">
+    <span>1</span>
+    <span>2</span>
+    <span>3</span>
+    <span>4</span>
+</div>
+
 <script>
+    let categoryVisible = true;
+    function toggleCategory() {
+        const categoryBox = document.getElementById('category-box');
+        const championList = document.getElementById('champion-list');
+        const toggleBtn = document.getElementById('toggle-btn');
+
+        if (categoryVisible) {
+            categoryBox.classList.add('collapsed');
+            championList.style.gridTemplateColumns = 'repeat(6, 1fr)';
+            toggleBtn.textContent = '▶';
+        } else {
+            categoryBox.classList.remove('collapsed');
+            championList.style.gridTemplateColumns = 'repeat(5, 1fr)';
+            toggleBtn.textContent = '◀';
+        }
+
+        categoryVisible = !categoryVisible;
+    }
+
     const slide = document.getElementById('banner-slide');
     const totalSlide = slide.children.length;
     let currentIndex = 0;

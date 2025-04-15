@@ -12,4 +12,6 @@ public class Champion {
     private String blurb;
 
     private String imageUrl;
+
+    private int price;
 }
