@@ -15,6 +15,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.Arrays;
 import java.util.List;
@@ -68,12 +70,16 @@ public class Home {
     public String logout(HttpSession session, HttpServletResponse response) {
         session.invalidate();
 
-
         Cookie cookie = new Cookie("loginEmail", null);
         cookie.setPath("/");
         cookie.setMaxAge(0);
         response.addCookie(cookie);
 
         return "redirect:/";
+    }
+    @ResponseBody
+    @GetMapping("/api/champion/detail")
+    public Champion getChampionDetail(@RequestParam("name") String name) {
+        return championRepository.findByName(name);
     }
 }

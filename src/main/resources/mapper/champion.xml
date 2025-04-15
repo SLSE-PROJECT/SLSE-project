@@ -11,4 +11,8 @@
     <select id="findAll" resultType="champion">
         SELECT * FROM champion
     </select>
+
+    <select id="findByName" resultType="champion">
+        SELECT * FROM champion WHERE name = #{name}
+    </select>
 </mapper>

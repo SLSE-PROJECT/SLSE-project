@@ -10,4 +10,6 @@ public interface ChampionRepository {
     void insert (Champion champion);
 
     List<Champion> findAll();
+
+    Champion findByName(String name);
 }

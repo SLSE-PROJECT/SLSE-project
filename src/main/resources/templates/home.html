@@ -7,6 +7,8 @@
 </head>
 
 <body>
+
+<!-- 헤더 -->
 <div class="header">
     <div class="logo">
         <a th:href="@{/}"><img src="/img/SLSE-logo.png" alt="로고"></a>
@@ -22,13 +24,13 @@
         <form th:action="@{/profile}">
             <button class="login-btn">프로필</button>
         </form>
-
         <form th:action="@{/auth/logout}">
             <button class="login-btn">로그아웃</button>
         </form>
     </div>
 </div>
 
+<!-- 배너 -->
 <div class="banner-container">
     <div class="banner-slide" id="banner-slide">
         <img src="/img/banner1.png">
@@ -39,6 +41,7 @@
     <button class="banner-btn banner-next" onclick="nextSlide()">&gt;</button>
 </div>
 
+<!-- 본문 -->
 <div class="content-container">
     <div class="category-wrap">
         <div class="category-box" id="category-box">
@@ -53,22 +56,79 @@
     </div>
 
     <div class="champion-list-box" id="champion-list">
-        <div class="champion-card" th:each="one : ${champions}">
+        <div class="champion-card" th:each="one : ${champions}" th:data-id="${one.id}" th:data-name="${one.name}"
+             th:data-title="${one.title}" th:data-blurb="${one.blurb}" th:data-image-url="${one.imageUrl}"
+             th:data-price="${one.price}">
             <img th:src="${one.imageUrl}">
             <div th:text="${one.name}" style="margin-top:5px;"></div>
         </div>
     </div>
 </div>
 
-<div class="pagination">
-    <span>1</span>
-    <span>2</span>
-    <span>3</span>
-    <span>4</span>
+<!-- 모달창 -->
+<div id="overlay"
+     style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); z-index:99;"
+     onclick="closeModal()"></div>
+
+<div id="champion-modal"
+     style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; width:600px; border-radius:8px; z-index:100;">
+    <div style="background:black; color:white; padding:15px; display:flex; justify-content:space-between; align-items:center;">
+        <h2 id="modal-name"></h2>
+        <button onclick="closeModal()"
+                style="background:none; border:none; color:white; font-size:20px; cursor:pointer;">X
+        </button>
+    </div>
+    <div style="padding:20px; display:flex; gap:20px;">
+        <img id="modal-img" style="width:200px; height:200px; object-fit:cover;">
+        <div>
+            <h3 id="modal-title"></h3>
+            <p id="modal-blurb" style="font-size:14px; line-height:1.5;"></p>
+            <div style="margin-top:10px; display:flex; align-items:center; gap:10px;" th:if="${session.user == null}">
+                <a th:href="@{/auth/login}">
+                    <button class="login-btn-modal">로그인하로가기</button>
+                </a>
+
+            </div>
+            <div style="margin-top:10px; display:flex; align-items:center; gap:10px;"
+                 th:unless="${session.user == null}">
+                <button id="action-btn" class="login-btn-modal">구매하기</button>
+                <span id="modal-price" style="font-size:14px; color:gray;"></span>
+            </div>
+
+
+        </div>
+    </div>
+</div>
 </div>
 
+<!-- JS -->
 <script>
+    const overlay = document.getElementById("overlay");
+    const modal = document.getElementById("champion-modal");
+
+    function closeModal() {
+        overlay.style.display = 'none';
+        modal.style.display = 'none';
+    }
+
+    document.querySelectorAll('.champion-card').forEach(card => {
+        card.addEventListener('click', (evt) => {
+            console.log(evt.currentTarget.dataset);
+            document.getElementById("modal-name").innerText = evt.currentTarget.dataset.name;
+            document.getElementById("modal-title").innerText = evt.currentTarget.dataset.title;
+            document.getElementById("modal-blurb").innerText = evt.currentTarget.dataset.blurb;
+            document.getElementById("modal-img").src = evt.currentTarget.dataset.imageUrl;
+            if (document.getElementById("modal-price")) {
+                document.getElementById("modal-price").innerText = evt.currentTarget.dataset.price.toLocaleString() + ' SLSE';
+            }
+
+            overlay.style.display = 'block';
+            modal.style.display = 'block';
+        });
+    });
+
     let categoryVisible = true;
+
     function toggleCategory() {
         const categoryBox = document.getElementById('category-box');
         const championList = document.getElementById('champion-list');
@@ -83,7 +143,6 @@
             championList.style.gridTemplateColumns = 'repeat(5, 1fr)';
             toggleBtn.textContent = '◀';
         }
-
         categoryVisible = !categoryVisible;
     }
 
@@ -105,5 +164,6 @@
         showSlide(currentIndex);
     }
 </script>
+
 </body>
 </html>
