@@ -11,4 +11,6 @@ public interface ChampionRepository {
     List<Champion> findAll();
 
     Champion findByChampionId(String championId);
+  
+    Champion findByName(String name);
 }
