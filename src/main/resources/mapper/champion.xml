@@ -15,6 +15,7 @@
 
     <select id="findByChampionId" resultType="champion">
         SELECT * FROM champion WHERE champion_id = #{championId}
+    </select>
 
     <select id="findByName" resultType="champion">
         SELECT * FROM champion WHERE name = #{name}
