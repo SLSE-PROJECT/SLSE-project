@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.codenova.slseproject.repository.ChampionRepository">
+    <insert id="insert" parameterType="champion">
+        insert into champion (id, name, title, blurb, image_url, price)
+        values (#{id}, #{name}, #{title}, #{blurb}, #{imageUrl}, #{price})
+    </insert>
+
+    <select id="findAll" resultType="champion">
+        SELECT * FROM champion
+    </select>
+</mapper>

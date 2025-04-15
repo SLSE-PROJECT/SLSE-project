@@ -55,7 +55,7 @@
     <div class="champion-list-box" id="champion-list">
         <div class="champion-card" th:each="one : ${champions}">
             <img th:src="${one.imageUrl}">
-            <div th:text="${one.price}" style="margin-top:5px;"></div>
+            <div th:text="${one.name}" style="margin-top:5px;"></div>
         </div>
     </div>
 </div>

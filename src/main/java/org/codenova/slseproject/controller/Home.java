@@ -5,8 +5,10 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import lombok.AllArgsConstructor;
 import org.codenova.slseproject.entity.Champion;
 import org.codenova.slseproject.entity.User;
+import org.codenova.slseproject.repository.ChampionRepository;
 import org.codenova.slseproject.repository.UserRepository;
 import org.codenova.slseproject.service.ChampionAPIService;
 import org.springframework.stereotype.Controller;
@@ -18,15 +20,11 @@ import java.util.Arrays;
 import java.util.List;
 
 @Controller
+@AllArgsConstructor
 public class Home {
 
-    private final ChampionAPIService championAPIService;
-    private final UserRepository userRepository;
-
-    public Home(ChampionAPIService championAPIService, UserRepository userRepository) {
-        this.championAPIService = championAPIService;
-        this.userRepository = userRepository;
-    }
+    private UserRepository userRepository;
+    private ChampionRepository championRepository;
 
     @RequestMapping("/")
     public String home(HttpSession session, HttpServletRequest request, Model m) throws JsonProcessingException {
@@ -59,8 +57,7 @@ public class Home {
             }
         }
 
-        Champion[] champions = championAPIService.findAllChampion();
-        List<Champion> championList = Arrays.asList(champions);
+        List<Champion> championList = championRepository.findAll();
 
         m.addAttribute("champions", championList);
 

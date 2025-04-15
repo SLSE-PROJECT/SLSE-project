@@ -2,6 +2,7 @@ package org.codenova.slseproject.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.codenova.slseproject.repository.ChampionRepository;
 import org.codenova.slseproject.response.ChampionResponse;
 import org.codenova.slseproject.entity.Champion;
 import org.springframework.http.HttpMethod;
@@ -49,6 +50,7 @@ public class ChampionAPIService {
             int attackdamage = stats.path("attackdamage").asInt();
 
             champion.setPrice(hp * attackdamage);
+
         }
 
         return champions;
