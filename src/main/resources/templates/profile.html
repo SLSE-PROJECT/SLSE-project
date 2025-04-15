@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <title>My Profile</title>
-
   <style>
     .profile-container {
       max-width: 1000px;
@@ -38,11 +37,34 @@
       border-radius: 8px;
       text-align: center;
       padding: 10px;
+      cursor: pointer;
     }
 
     .champion-card img {
       width: 100px;
       height: 100px;
+    }
+
+    /* 모달 스타일 */
+    #overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      z-index: 1000;
+    }
+
+    #champion-detail {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      display: none;
+      width: 400px;
+      z-index: 1001;
     }
   </style>
 </head>
@@ -60,12 +82,52 @@
   <!-- 보유 챔피언 리스트 -->
   <h2>보유 챔피언</h2>
   <div class="champion-list">
-    <div class="champion-card" th:each="champion : ${champions}">
+    <div class="champion-card"
+         th:each="champion : ${champions}"
+         th:attr="data-name=${champion.name}, data-title=${champion.title}, data-blurb=${champion.blurb}, data-image=${champion.imageUrl}">
       <img th:src="${champion.imageUrl}" th:alt="${champion.name}">
       <h3 th:text="${champion.name}"></h3>
       <p th:text="${champion.title}"></p>
     </div>
   </div>
 </div>
+
+<!-- 모달창 -->
+<div id="overlay" onclick="closeModal()"></div>
+
+<div id="champion-detail">
+  <h2 id="detail-name"></h2>
+  <h4 id="detail-title"></h4>
+  <img id="detail-img" style="width:120px; height:120px; margin: 10px 0;">
+  <p id="detail-blurb"></p>
+</div>
+
+<script>
+  const overlay = document.getElementById('overlay');
+  const modal = document.getElementById('champion-detail');
+
+  function closeModal() {
+    overlay.style.display = 'none';
+    modal.style.display = 'none';
+  }
+
+  document.querySelectorAll('.champion-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const name = card.dataset.name;
+      const title = card.dataset.title;
+      const blurb = card.dataset.blurb;
+      const image = card.dataset.image;
+
+      document.getElementById('detail-name').innerText = name;
+      document.getElementById('detail-title').innerText = title;
+      document.getElementById('detail-blurb').innerText = blurb;
+      document.getElementById('detail-img').src = image;
+
+      overlay.style.display = 'block';
+      modal.style.display = 'block';
+    });
+  });
+</script>
+
 </body>
 </html>

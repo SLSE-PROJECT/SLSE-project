@@ -11,4 +11,5 @@ public class UserChampion {
     private String name;
     private String title;
     private String imageUrl;
+    private String blurb;
 }
