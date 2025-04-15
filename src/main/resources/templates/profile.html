@@ -11,6 +11,22 @@
       padding: 20px;
     }
 
+    .user-info {
+      border: 1px solid #ccc;
+      padding: 20px;
+      margin-bottom: 30px;
+      border-radius: 8px;
+      background-color: #f9f9f9;
+    }
+
+    .user-info h2 {
+      margin-bottom: 10px;
+    }
+
+    .user-info p {
+      margin: 4px 0;
+    }
+
     .champion-list {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
@@ -33,10 +49,16 @@
 <body>
 
 <div class="profile-container">
-  <h1 th:text="'환영합니다 ' + ${user.nickname} + '님!'"></h1>
 
+  <!-- 개인정보 섹션 -->
+  <div class="user-info">
+    <h2>개인 정보</h2>
+    <p><strong>닉네임:</strong> <span th:text="${user.nickname}"></span></p>
+    <p><strong>가입일:</strong> <span th:text="${#temporals.format(user.createAt, 'yyyy-MM-dd HH:mm')}"></span></p>
+  </div>
+
+  <!-- 보유 챔피언 리스트 -->
   <h2>보유 챔피언</h2>
-
   <div class="champion-list">
     <div class="champion-card" th:each="champion : ${champions}">
       <img th:src="${champion.imageUrl}" th:alt="${champion.name}">
@@ -44,6 +66,7 @@
       <p th:text="${champion.title}"></p>
     </div>
   </div>
+
 </div>
 
 </body>
