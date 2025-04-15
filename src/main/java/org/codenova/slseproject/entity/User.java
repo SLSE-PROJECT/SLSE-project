@@ -3,6 +3,7 @@ package org.codenova.slseproject.entity;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Setter
 @Getter
@@ -19,4 +20,6 @@ public class User {
     private String providerId;
     private LocalDateTime createAt;
     private int SLSE;
+
+    private List<Champion> champions;
 }

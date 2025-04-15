@@ -155,9 +155,15 @@
             <img src="/img/SLSE-logo.png" alt="SLSESHOP 로고">
         </a>
     </div>
-    <form th:action="@{/auth/login}">
-        <button class="login-btn">로그인</button>
-    </form>
+
+    <div style="display: flex; gap: 10px;">
+        <form th:action="@{/profile}">
+            <button class="login-btn">프로필</button>
+        </form>
+        <form th:action="@{/auth/login}">
+            <button class="login-btn">로그인</button>
+        </form>
+    </div>
 </div>
 
 <div class="banner-container">

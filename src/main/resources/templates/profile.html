@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>My Profile</title>
+
+  <style>
+    .profile-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .champion-list {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 20px;
+    }
+
+    .champion-card {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      text-align: center;
+      padding: 10px;
+    }
+
+    .champion-card img {
+      width: 100px;
+      height: 100px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="profile-container">
+  <h1 th:text="'환영합니다 ' + ${user.nickname} + '님!'"></h1>
+
+  <h2>보유 챔피언</h2>
+
+  <div class="champion-list">
+    <div class="champion-card" th:each="champion : ${champions}">
+      <img th:src="${champion.imageUrl}" th:alt="${champion.name}">
+      <h3 th:text="${champion.name}"></h3>
+      <p th:text="${champion.title}"></p>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
