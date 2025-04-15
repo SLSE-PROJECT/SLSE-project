@@ -3,157 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <title>SLSE-SHOP</title>
-
-    <style>
-
-        .banner-container {
-            position: relative;
-            width: 100%;
-            height: 200px;
-            overflow: hidden;
-            background: #eee;
-            margin-top: 80px; /* 헤더 때문에 여백 */
-        }
-
-        .banner-slide {
-            display: flex;
-            transition: transform 0.5s ease-in-out;
-        }
-
-        .banner-slide img {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-        }
-
-        .banner-btn {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(0,0,0,0.5);
-            color: white;
-            border: none;
-            font-size: 30px;
-            cursor: pointer;
-            padding: 5px 10px;
-        }
-
-        .banner-prev { left: 10px; }
-        .banner-next { right: 10px; }
-
-        .header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 80px;
-            background-color: #ffffff;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 40px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            box-sizing: border-box;
-            z-index: 1000;
-        }
-
-        .logo img {
-            height: 60px;
-        }
-
-        .login-btn {
-            padding: 8px 20px;
-            background-color: black;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            white-space: nowrap;
-        }
-
-        /* 본문 스타일 */
-        #champion-list {
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 20px;
-            padding: 120px 20px 20px 20px; /* 헤더 고려 패딩 */
-        }
-
-        .champion-card {
-            text-align: center;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 10px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .champion-card:hover {
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-        }
-
-        /* 모달 스타일 */
-        #overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background-color: rgba(0, 0, 0, 0.5);
-            display: none;
-            z-index: 99;
-        }
-
-        #champion {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: white;
-            width: 700px;
-            border-radius: 8px;
-            display: none;
-            z-index: 100;
-        }
-
-        .modal-header {
-            background: black;
-            color: white;
-            padding: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .modal-body {
-            display: flex;
-            padding: 20px;
-            gap: 20px;
-        }
-
-        .modal-left img {
-            width: 200px;
-        }
-
-        .login-btn-modal {
-            margin-top: 20px;
-            background: black;
-            color: white;
-            padding: 10px;
-            border: none;
-            cursor: pointer;
-        }
-    </style>
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 
 <body>
-
-<!-- 헤더 -->
 <div class="header">
     <div class="logo">
-        <a th:href="@{/}">
-            <img src="/img/SLSE-logo.png" alt="SLSESHOP 로고">
-        </a>
+        <a th:href="@{/}"><img src="/img/SLSE-logo.png" alt="로고"></a>
     </div>
 
     <div th:if="${session.user == null}">
@@ -183,68 +39,53 @@
     <button class="banner-btn banner-next" onclick="nextSlide()">&gt;</button>
 </div>
 
-<!-- 챔피언 리스트 -->
-<div id="champion-list">
-    <div class="champion-card" th:each="one : ${champions}"
-         th:attr="data-name=${one.name}, data-title=${one.title}, data-blurb=${one.blurb}, data-image=${one.imageUrl}">
-        <img th:src="${one.imageUrl}" style="width:100px; height:100px; object-fit:cover;">
-        <div th:text="${one.name}" style="margin-top: 5px;"></div>
+<div class="content-container">
+    <div class="category-wrap">
+        <div class="category-box" id="category-box">
+            <h3>카테고리</h3>
+            <ul>
+                <li>전체</li>
+                <li>원거리</li>
+                <li>근거리</li>
+            </ul>
+        </div>
+        <button id="toggle-btn" class="category-toggle-btn" onclick="toggleCategory()">◀</button>
+    </div>
+
+    <div class="champion-list-box" id="champion-list">
+        <div class="champion-card" th:each="one : ${champions}">
+            <img th:src="${one.imageUrl}">
+            <div th:text="${one.price}" style="margin-top:5px;"></div>
+        </div>
     </div>
 </div>
 
-<!-- 모달 -->
-<div id="overlay"></div>
-
-<div id="champion">
-    <div class="modal-header">
-        <h2 id="champion-name"></h2>
-        <button onclick="closeModal()" style="background:none; border:none; color:white; font-size:20px; cursor:pointer;">X</button>
-    </div>
-    <div class="modal-body">
-        <div class="modal-left">
-            <img id="champion-img">
-            <h3 id="champion-title"></h3>
-        </div>
-        <div class="modal-right">
-            <p id="champion-blurb"></p>
-            <button id="login-btn" onclick="location.href='/auth/login'" class="login-btn-modal" style="display:none">
-                로그인 하러가기
-            </button>
-        </div>
-    </div>
+<div class="pagination">
+    <span>1</span>
+    <span>2</span>
+    <span>3</span>
+    <span>4</span>
 </div>
 
 <script>
-    const overlay = document.getElementById("overlay");
-    const championDiv = document.getElementById("champion");
+    let categoryVisible = true;
+    function toggleCategory() {
+        const categoryBox = document.getElementById('category-box');
+        const championList = document.getElementById('champion-list');
+        const toggleBtn = document.getElementById('toggle-btn');
 
-    function closeModal() {
-        overlay.style.display = 'none';
-        championDiv.style.display = 'none';
-    }
-
-    document.getElementById("champion-list").onclick = function (event) {
-        const card = event.target.closest('.champion-card');
-        if (card) {
-            const name = card.dataset.name;
-            const title = card.dataset.title;
-            const blurb = card.dataset.blurb;
-            const image = card.dataset.image;
-
-            document.getElementById("champion-name").innerText = name;
-            document.getElementById("champion-title").innerText = title;
-            document.getElementById("champion-blurb").innerText = blurb;
-            document.getElementById("champion-img").src = image;
-
-            const isLogin = false;  // 실제 로그인 여부 로직
-            document.getElementById("login-btn").style.display = isLogin ? 'none' : '';
-
-            overlay.style.display = 'block';
-            championDiv.style.display = 'block';
+        if (categoryVisible) {
+            categoryBox.classList.add('collapsed');
+            championList.style.gridTemplateColumns = 'repeat(6, 1fr)';
+            toggleBtn.textContent = '▶';
+        } else {
+            categoryBox.classList.remove('collapsed');
+            championList.style.gridTemplateColumns = 'repeat(5, 1fr)';
+            toggleBtn.textContent = '◀';
         }
-    }
 
-    overlay.onclick = closeModal;
+        categoryVisible = !categoryVisible;
+    }
 
     const slide = document.getElementById('banner-slide');
     const totalSlide = slide.children.length;
@@ -264,6 +105,5 @@
         showSlide(currentIndex);
     }
 </script>
-
 </body>
 </html>
