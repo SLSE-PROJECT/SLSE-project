@@ -7,9 +7,10 @@ import java.util.List;
 
 @Mapper
 public interface ChampionRepository {
-    void insert (Champion champion);
 
     List<Champion> findAll();
 
+    Champion findByChampionId(String championId);
+  
     Champion findByName(String name);
 }

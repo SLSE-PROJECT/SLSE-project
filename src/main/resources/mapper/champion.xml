@@ -12,7 +12,12 @@
         SELECT * FROM champion
     </select>
 
+
+    <select id="findByChampionId" resultType="champion">
+        SELECT * FROM champion WHERE champion_id = #{championId}
+
     <select id="findByName" resultType="champion">
         SELECT * FROM champion WHERE name = #{name}
+
     </select>
 </mapper>
