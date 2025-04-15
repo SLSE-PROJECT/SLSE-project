@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.SessionAttribute;
 import java.util.*;
 
 @Controller
-public class Profile{
+public class Profile {
 
     private final ChampionAPIService championAPIService;
     private final UserChampionRepository userChampionRepository;
@@ -36,7 +36,6 @@ public class Profile{
 
         List<UserChampion> ownedChampions = userChampionRepository.findByUserId(userId);
 
-
         if (ownedChampions == null || ownedChampions.isEmpty()) {
             Champion[] allChampions = championAPIService.findAllChampion();
             List<Champion> championList = Arrays.asList(allChampions);
@@ -51,11 +50,24 @@ public class Profile{
                 uc.setName(c.getName());
                 uc.setTitle(c.getTitle());
                 uc.setImageUrl(c.getImageUrl());
+                uc.setBlurb(c.getBlurb());
                 toSave.add(uc);
             }
 
             userChampionRepository.saveAll(userId, toSave);
             ownedChampions = toSave;
+        } else {
+
+            Champion[] allChampions = championAPIService.findAllChampion();
+            Map<String, String> blurbMap = new HashMap<>();
+            for (Champion c : allChampions) {
+                blurbMap.put(c.getId(), c.getBlurb());
+            }
+
+            for (UserChampion uc : ownedChampions) {
+                String blurb = blurbMap.get(uc.getChampionId());
+                uc.setBlurb(blurb);
+            }
         }
 
         model.addAttribute("user", user);
