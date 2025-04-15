@@ -30,10 +30,10 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 public class Auth {
 
-    private UserRepository userRepository;
-    private KakaoApi kakaoApiService;
-    private NaverApi naverApiService;
-    private GoogleApi googleApiService;
+    private final UserRepository userRepository;
+    private final KakaoApi kakaoApiService;
+    private final NaverApi naverApiService;
+    private final GoogleApi googleApiService;
 
     @GetMapping("/signup")
     public String signup() {
@@ -52,19 +52,14 @@ public class Auth {
 
     @GetMapping("/login")
     public String loginHandle(Model model) {
-
-
         model.addAttribute("kakaoClientId", "9d7d57ad6e80992d91fff47b4240e032");
         model.addAttribute("kakaoRedirectUri", "http://192.168.10.96:8080/auth/kakao/callback");
-
 
         model.addAttribute("naverClientId", "cs0eCk_B4O1jRJH2A4OY");
         model.addAttribute("naverRedirectUri", "http://192.168.10.96:8080/auth/naver/callback");
 
-
         return "auth/login";
     }
-
 
     @PostMapping("/login")
     public String loginPost(@RequestParam("password") String password,
@@ -76,50 +71,39 @@ public class Auth {
         }
 
         User user = userRepository.selectByEmail(email.getEmail());
-        if (user == null) {
-            return "auth/login";
-        } else if (!user.getPassword().equals(password)) {
+        if (user == null || !user.getPassword().equals(password)) {
             return "auth/login";
         }
 
         Cookie cookie = new Cookie("loginEmail", user.getEmail());
         cookie.setPath("/");
-        cookie.setMaxAge(60 * 60 * 24 * 365 * 10);
+        cookie.setMaxAge(60 * 60 * 24 * 365 * 10); // 10년
         response.addCookie(cookie);
 
         session.setAttribute("user", user);
         return "redirect:/";
     }
 
-    //=========================================================KAKAO====================================================
+    // ✅ 카카오 로그인 콜백
     @GetMapping("/kakao/callback")
     public String kakaoCallbackHandle(@RequestParam("code") String code,
-                                      HttpSession session
-    ) throws JsonProcessingException {
-        log.info("카카오 콜백 - code: {}", code);
+                                      HttpSession session,
+                                      HttpServletResponse response) throws JsonProcessingException {
+        KakaoTokenResponse responseData = kakaoApiService.exchangeToken(code);
+        String idToken = responseData.getIdToken();
 
-        // 1. 카카오 토큰 교환
-        KakaoTokenResponse response = kakaoApiService.exchangeToken(code);
-        log.info("KakaoTokenResponse: {}", response);
-
-        // 2. idToken null 체크
-        String idToken = response.getIdToken();
-        if (idToken == null || idToken.isEmpty()) {
-            log.error("id_token is missing in Kakao response");
-            throw new IllegalStateException("Kakao id_token is null or empty");
-        }
-
-        // 3. JWT 디코딩
         DecodedJWT decodedJWT = JWT.decode(idToken);
         String sub = decodedJWT.getClaim("sub").asString();
-        String nickname = decodedJWT.getClaim("nickname").asString(); // 카카오에서는 대부분 "nickname"이 아님. 확인 필요
+        String nickname = decodedJWT.getClaim("nickname").asString();
 
-        log.info("Decoded JWT - sub: {}, nickname: {}", sub, nickname);
-
-        // 4. 사용자 조회 또는 생성
         User found = userRepository.selectByProviderAndProviderId("KAKAO", sub);
         if (found != null) {
             session.setAttribute("user", found);
+
+            Cookie cookie = new Cookie("loginEmail", "KAKAO:" + found.getProviderId());
+            cookie.setPath("/");
+            cookie.setMaxAge(60 * 60 * 24 * 365 * 10);
+            response.addCookie(cookie);
         } else {
             User user = User.builder()
                     .provider("KAKAO")
@@ -128,77 +112,47 @@ public class Auth {
                     .build();
             userRepository.create(user);
             session.setAttribute("user", user);
-        }
 
-        return "redirect:/";
-    }
-    //==================================================================================================================
-
-    @GetMapping("/naver/callback")
-    public String naverCallbackHandle(@RequestParam("code") String code,
-                                      @RequestParam("state") String state, HttpSession session) throws JsonProcessingException {
-        // log.info("code = {}, state = {}", code, state);
-
-        NaverTokenResponse tokenResponse =
-                naverApiService.exchangeToken(code, state);
-
-        // log.info("accessToken = {}", tokenResponse.getAccessToken());
-
-
-        NaverProfileResponse profileResponse
-                = naverApiService.exchangeProfile(tokenResponse.getAccessToken());
-        log.info("profileResponse id = {}", profileResponse.getId());
-        log.info("profileResponse nickname = {}", profileResponse.getNickname());
-
-        User found = userRepository.selectByProviderAndProviderId("NAVER", profileResponse.getId());
-        if (found == null) {
-            User user = User.builder()
-                    .nickname(profileResponse.getNickname())
-                    .provider("NAVER")
-                    .providerId(profileResponse.getId())
-                    .build();
-
-            userRepository.create(user);
-            session.setAttribute("user", user);
-
-        } else {
-            session.setAttribute("user", found);
-        }
-        return "redirect:/";
-    }
-    /*
-    @GetMapping("/google/callback")
-    public String googleCallback(@RequestParam String code, HttpSession session, HttpServletResponse response) {
-        try {
-
-            GoogleTokenResponse tokenResponse = googleApiService.exchangeToken(code);
-            log.info("Access Token: {}", tokenResponse.getAccessToken());
-
-            String accessToken = tokenResponse.getAccessToken();
-
-            User user = userRepository.selectByEmail(accessToken);
-            if (user == null) {
-                user = new User();
-                user.setEmail(accessToken);
-                userRepository.create(user);
-            }
-
-            Cookie cookie = new Cookie("loginEmail", user.getEmail());
+            Cookie cookie = new Cookie("loginEmail", "KAKAO:" + user.getProviderId());
             cookie.setPath("/");
             cookie.setMaxAge(60 * 60 * 24 * 365 * 10);
             response.addCookie(cookie);
-
-            session.setAttribute("user", user);
-
-            return "redirect:/";
-        } catch (Exception e) {
-            log.error("Google OAuth error", e);
-            return "redirect:/auth/login";
         }
 
-
-
+        return "redirect:/";
     }
 
-     */
+    @GetMapping("/naver/callback")
+    public String naverCallbackHandle(@RequestParam("code") String code,
+                                      @RequestParam("state") String state,
+                                      HttpSession session,
+                                      HttpServletResponse response) throws JsonProcessingException {
+        NaverTokenResponse tokenResponse = naverApiService.exchangeToken(code, state);
+        NaverProfileResponse profile = naverApiService.exchangeProfile(tokenResponse.getAccessToken());
+
+        User found = userRepository.selectByProviderAndProviderId("NAVER", profile.getId());
+        if (found != null) {
+            session.setAttribute("user", found);
+
+            Cookie cookie = new Cookie("loginEmail", "NAVER:" + found.getProviderId());
+            cookie.setPath("/");
+            cookie.setMaxAge(60 * 60 * 24 * 365 * 10);
+            response.addCookie(cookie);
+        } else {
+            User user = User.builder()
+                    .provider("NAVER")
+                    .providerId(profile.getId())
+                    .nickname(profile.getNickname())
+                    .build();
+            userRepository.create(user);
+            session.setAttribute("user", user);
+
+            Cookie cookie = new Cookie("loginEmail", "NAVER:" + user.getProviderId());
+            cookie.setPath("/");
+            cookie.setMaxAge(60 * 60 * 24 * 365 * 10);
+            response.addCookie(cookie);
+        }
+
+        return "redirect:/";
+    }
 }
