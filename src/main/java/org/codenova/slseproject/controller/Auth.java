@@ -47,8 +47,6 @@ public class Auth {
         }
 
 
-        championService.getOrCreateUserChampions(user);
-
         if (!email.getEmail().contains("@")) {
             model.addAttribute("emailError", "이메일 형식이 올바르지 않습니다.");
             return "auth/signup";
@@ -67,6 +65,7 @@ public class Auth {
 
         user.setEmail(email.getEmail());
         userRepository.create(user);
+        championService.getOrCreateUserChampions(user);
         return "redirect:/";
     }
     @GetMapping("/api/auth/nickname")
