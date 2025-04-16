@@ -7,7 +7,6 @@
 </head>
 
 <body>
-
 <!-- 헤더 -->
 <div class="header">
     <div class="logo">
@@ -71,7 +70,7 @@
      onclick="closeModal()"></div>
 
 <div id="champion-modal"
-     style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; width:600px; border-radius:8px; z-index:100;">
+     style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; width:600px; border-radius:8px; z-index:100; max-height:90vh; overflow-y:auto;">
     <div style="background:black; color:white; padding:15px; display:flex; justify-content:space-between; align-items:center;">
         <h2 id="modal-name"></h2>
         <button onclick="closeModal()"
@@ -87,19 +86,24 @@
                 <a th:href="@{/auth/login}">
                     <button class="login-btn-modal">로그인하러가기</button>
                 </a>
-
             </div>
-            <div style="margin-top:10px; display:flex; align-items:center; gap:10px;"
-                 th:unless="${session.user == null}">
+            <div style="margin-top:10px; display:flex; align-items:center; gap:10px;" th:unless="${session.user == null}">
                 <button id="action-btn" class="login-btn-modal">구매하기</button>
                 <span id="modal-price" style="font-size:14px; color:gray;"></span>
-
                 <input id="modal-champion-id" type="hidden" name="champion-id">
-
             </div>
-
-
         </div>
+    </div>
+
+    <!-- 댓글영역 -->
+    <div style="padding: 20px; border-top: 1px solid #eee;">
+        <h4 style="margin-bottom: 10px;">댓글</h4>
+        <div>
+            <textarea id="comment-content" placeholder="댓글을 입력하세요" style="width: 100%; height: 80px;"></textarea>
+            <button onclick="submitComment()" style="margin-top: 10px;">등록</button>
+        </div>
+        <!-- 댓글 리스트에 스크롤 적용 -->
+        <div id="comment-list" style="margin-top: 20px; max-height: 200px; overflow-y: auto; padding-right: 5px;"></div>
     </div>
 </div>
 
@@ -108,11 +112,10 @@
         const overlay = document.getElementById("overlay");
         const modal = document.getElementById("champion-modal");
 
-        function closeModal() {
+        window.closeModal = function () {
             overlay.style.display = 'none';
             modal.style.display = 'none';
         }
-        window.closeModal = closeModal
 
         document.querySelectorAll('.champion-card').forEach(card => {
             card.addEventListener('click', (evt) => {
@@ -122,81 +125,120 @@
                 document.getElementById("modal-title").innerText = data.title;
                 document.getElementById("modal-blurb").innerText = data.blurb;
                 document.getElementById("modal-img").src = data.imageUrl;
-
-                const priceEl = document.getElementById("modal-price");
-                if (priceEl) {
-                    priceEl.innerText = parseInt(data.price).toLocaleString() + ' SLSE';
-                }
-
-                const champIdInput = document.getElementById("modal-champion-id");
-                if (champIdInput) {
-                    champIdInput.value = data.id;
-                }
+                document.getElementById("modal-price").innerText = parseInt(data.price).toLocaleString() + ' SLSE';
+                document.getElementById("modal-champion-id").value = data.id;
 
                 overlay.style.display = 'block';
                 modal.style.display = 'block';
+
+                loadComments();
             });
         });
 
-        let categoryVisible = true;
-
-        function toggleCategory() {
-            const categoryBox = document.getElementById('category-box');
-            const championList = document.getElementById('champion-list');
-            const toggleBtn = document.getElementById('toggle-btn');
-
-            if (categoryVisible) {
-                categoryBox.classList.add('collapsed');
-                championList.style.gridTemplateColumns = 'repeat(6, 1fr)';
-                toggleBtn.textContent = '▶';
-            } else {
-                categoryBox.classList.remove('collapsed');
-                championList.style.gridTemplateColumns = 'repeat(5, 1fr)';
-                toggleBtn.textContent = '◀';
-            }
-            categoryVisible = !categoryVisible;
-        }
-
-        const slide = document.getElementById('banner-slide');
-        const totalSlide = slide.children.length;
-        let currentIndex = 0;
-
-        function showSlide(index) {
-            slide.style.transform = 'translateX(' + (-index * 100) + '%)';
-        }
-
-        window.prevSlide = function () {
-            currentIndex = (currentIndex - 1 + totalSlide) % totalSlide;
-            showSlide(currentIndex);
-        }
-
-        window.nextSlide = function () {
-            currentIndex = (currentIndex + 1) % totalSlide;
-            showSlide(currentIndex);
-        }
-
         const actionBtn = document.getElementById("action-btn");
         if (actionBtn) {
-            actionBtn.onclick = function (evt) {
+            actionBtn.onclick = function () {
                 const championId = document.getElementById("modal-champion-id").value;
 
                 fetch("/trade/buy?champion-id=" + encodeURIComponent(championId), {
                     method: "get"
-                }).then(function (response) {
-                    return response.text();
-                }).then(function (result) {
-                    if (result === 'NNNN') {
-                        window.alert("오류가 생겼습니다");
-                    } else if (result === 'NNN') {
-                        window.alert("이미 보유 중인 챔피언입니다");
-                    } else {
-                        window.alert("구매가 완료되었습니다");
-                        closeModal();
-                    }
-                });
-            };
+                }).then(res => res.text())
+                    .then(result => {
+                        if (result === 'NNNN') alert("오류가 생겼습니다");
+                        else if (result === 'NNN') alert("이미 보유 중인 챔피언입니다");
+                        else {
+                            alert("구매가 완료되었습니다");
+                            closeModal();
+                        }
+                    });
+            }
         }
     });
+
+    function loadComments() {
+        const championId = document.getElementById("modal-champion-id").value;
+
+        fetch(`/champion/comments?champion-id=${championId}`)
+            .then(res => res.json())
+            .then(data => {
+                const list = document.getElementById("comment-list");
+                list.innerHTML = "";
+
+                if (data.length === 0) {
+                    list.innerHTML = "<p>댓글이 아직 없습니다.</p>";
+                    return;
+                }
+
+                data.forEach(comment => {
+                    const div = document.createElement("div");
+                    div.style.borderBottom = "1px solid #ddd";
+                    div.style.padding = "10px 0";
+                    div.innerHTML = `<b>${comment.nickname || '익명'}</b><br>${comment.content}<br><small style="color:gray;">${comment.createdAt}</small>`;
+                    list.appendChild(div);
+                });
+            });
+    }
+
+    function submitComment() {
+        const content = document.getElementById("comment-content").value;
+        const championId = document.getElementById("modal-champion-id").value;
+
+        if (!content.trim()) {
+            alert("댓글을 입력하세요.");
+            return;
+        }
+
+        fetch('/champion/post', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({
+                championId: championId,
+                content: content
+            })
+        }).then(res => res.text())
+            .then(result => {
+                if (result === 'OK' || result === 'YYY') {
+                    document.getElementById("comment-content").value = '';
+                    loadComments(); // 등록 후 댓글 갱신
+                } else {
+                    alert("댓글 등록 실패: " + result);
+                }
+            });
+    }
+
+    function toggleCategory() {
+        const categoryBox = document.getElementById('category-box');
+        const championList = document.getElementById('champion-list');
+        const toggleBtn = document.getElementById('toggle-btn');
+
+        if (categoryBox.classList.contains('collapsed')) {
+            categoryBox.classList.remove('collapsed');
+            championList.style.gridTemplateColumns = 'repeat(5, 1fr)';
+            toggleBtn.textContent = '◀';
+        } else {
+            categoryBox.classList.add('collapsed');
+            championList.style.gridTemplateColumns = 'repeat(6, 1fr)';
+            toggleBtn.textContent = '▶';
+        }
+    }
+
+    const slide = document.getElementById('banner-slide');
+    const totalSlide = slide.children.length;
+    let currentIndex = 0;
+
+    function showSlide(index) {
+        slide.style.transform = 'translateX(' + (-index * 100) + '%)';
+    }
+
+    window.prevSlide = function () {
+        currentIndex = (currentIndex - 1 + totalSlide) % totalSlide;
+        showSlide(currentIndex);
+    }
+
+    window.nextSlide = function () {
+        currentIndex = (currentIndex + 1) % totalSlide;
+        showSlide(currentIndex);
+    }
 </script>
 
 </body>
