@@ -29,7 +29,7 @@ public class Profile {
 
         User user = userOpt.get();
 
-        var ownedChampions = userChampionRepository.findByUserId(user.getId());
+        List<UserChampion> ownedChampions = userChampionRepository.findByUserId(user.getId());
 
         model.addAttribute("user", user);
         model.addAttribute("champions", ownedChampions);

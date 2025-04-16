@@ -8,6 +8,7 @@ import org.codenova.slseproject.repository.ChampionRepository;
 import org.codenova.slseproject.repository.UserChampionRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -27,16 +28,20 @@ public class ChampionService {
             Collections.shuffle(allChampions);
             List<Champion> randomFive = allChampions.subList(0, 5);
 
-            List<UserChampion> toSave = randomFive.stream()
-                    .map(c -> UserChampion.builder()
-                            .userId(userId)
-                            .championId(c.getId())
-                            .name(c.getName())
-                            .title(c.getTitle())
-                            .imageUrl(c.getImageUrl())
-                            .blurb(c.getBlurb())
-                            .build())
-                    .toList();
+            List<UserChampion> toSave = new ArrayList<>();
+
+            for (Champion c : randomFive) {
+                UserChampion uc = UserChampion.builder()
+                        .userId(userId)
+                        .championId(c.getId())
+                        .name(c.getName())
+                        .title(c.getTitle())
+                        .imageUrl(c.getImageUrl())
+                        .blurb(c.getBlurb())
+                        .build();
+
+                toSave.add(uc);
+            }
 
             userChampionRepository.saveAll(userId, toSave);
             return toSave;
