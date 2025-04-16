@@ -39,14 +39,10 @@ public class ChampionService {
                         .imageUrl(c.getImageUrl())
                         .blurb(c.getBlurb())
                         .build();
-
-                toSave.add(uc);
+                userChampionRepository.insert(uc);
             }
-
-            userChampionRepository.saveAll(userId, toSave);
             return toSave;
         }
-
         return ownedChampions;
     }
 }

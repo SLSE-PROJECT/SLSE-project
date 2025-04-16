@@ -3,6 +3,7 @@ package org.codenova.slseproject.controller;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -46,7 +47,6 @@ public class Auth {
             return "auth/signup";
         }
 
-
         if (!email.getEmail().contains("@")) {
             model.addAttribute("emailError", "이메일 형식이 올바르지 않습니다.");
             return "auth/signup";
@@ -65,6 +65,9 @@ public class Auth {
 
         user.setEmail(email.getEmail());
         userRepository.create(user);
+
+        System.out.println(user.getId());
+
         championService.getOrCreateUserChampions(user);
         return "redirect:/";
     }
@@ -109,11 +112,13 @@ public class Auth {
                             Model m, HttpSession session, HttpServletResponse response) {
 
         if (result.hasErrors()) {
+            System.out.println("Email");
             return "auth/login";
         }
 
         User user = userRepository.selectByEmail(email.getEmail());
         if (user == null || !user.getPassword().equals(password)) {
+            System.out.println("password");
             return "auth/login";
         }
 
@@ -154,6 +159,7 @@ public class Auth {
                     .build();
             userRepository.create(user);
             session.setAttribute("user", user);
+            championService.getOrCreateUserChampions(user);
 
             Cookie cookie = new Cookie("loginEmail", "KAKAO:" + user.getProviderId());
             cookie.setPath("/");
@@ -188,6 +194,7 @@ public class Auth {
                     .build();
             userRepository.create(user);
             session.setAttribute("user", user);
+            championService.getOrCreateUserChampions(user);
 
             Cookie cookie = new Cookie("loginEmail", "NAVER:" + user.getProviderId());
             cookie.setPath("/");

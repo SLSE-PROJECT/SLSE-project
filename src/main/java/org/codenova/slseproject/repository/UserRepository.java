@@ -7,7 +7,7 @@ import org.codenova.slseproject.entity.User;
 @Mapper
 public interface UserRepository {
 
-    int create(User user);
+    void create(User user);
 
     User selectByEmail(String email);
 
