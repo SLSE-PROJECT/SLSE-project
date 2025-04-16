@@ -65,7 +65,9 @@ public class Auth {
 
         user.setEmail(email.getEmail());
         userRepository.create(user);
+
         System.out.println(user.getId());
+
         championService.getOrCreateUserChampions(user);
         return "redirect:/";
     }
