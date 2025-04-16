@@ -40,13 +40,52 @@ public class Auth {
     }
 
     @PostMapping("/signup")
-    public String signupPost(@ModelAttribute User user, @ModelAttribute @Valid EmailCheck email, BindingResult result) {
+    public String signupPost(@ModelAttribute User user, @ModelAttribute @Valid EmailCheck email, BindingResult result, Model model) {
         if (result.hasErrors()) {
             return "auth/signup";
         }
+
+        if (!email.getEmail().contains("@")) {
+            model.addAttribute("emailError", "이메일 형식이 올바르지 않습니다.");
+            return "auth/signup";
+        }
+
+        if (userRepository.selectByEmail(email.getEmail()) != null) {
+            model.addAttribute("emailError", "이미 가입된 이메일입니다.");
+            return "auth/signup";
+        }
+
+        if (!user.getPassword().matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$")) {
+            model.addAttribute("passwordError", "비밀번호는 영문 대소문자와 숫자를 포함해 8자 이상이어야 합니다.");
+            return "auth/signup";
+        }
+
         user.setEmail(email.getEmail());
         userRepository.create(user);
         return "redirect:/";
+    }
+    @GetMapping("/api/auth/nickname")
+    @ResponseBody
+    public String checkNickname(@RequestParam String nickname) {
+        User user = userRepository.selectByNickname(nickname);
+        if (user != null) {
+            return "duplicated";
+        }
+        return "available";
+    }
+
+    @GetMapping("/api/auth/available")
+    @ResponseBody
+    public String checkEmail(@RequestParam String email) {
+        if (!email.contains("@")) {
+            return "not-email";
+        }
+
+        if (userRepository.selectByEmail(email) != null) {
+            return "duplicated";
+        }
+
+        return "available";
     }
 
     @GetMapping("/login")

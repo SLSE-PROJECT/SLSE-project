@@ -86,6 +86,12 @@
             background: linear-gradient(to right, #6a00ff, #3898ec);
             transform: scale(1.05);
         }
+        .signup-container button:disabled {
+            background: gray;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
 
         .logo {
             position: fixed;
@@ -121,16 +127,149 @@
     <form th:action="@{/auth/signup}" method="post">
         <label for="email">이메일</label>
         <input type="text" name="email" id="email">
+        <span id="email-msg" style="font-size: 14px;"></span>
 
         <label for="password">비밀번호</label>
         <input type="password" name="password" id="password">
+        <span id="password-msg" style="font-size: 14px;"></span>
+
+        <label for="check-password">비밀번호 확인</label>
+        <input type="password" id="check-password">
+        <span id="check-msg" style="font-size: 14px;"></span>
 
         <label for="nickname">닉네임</label>
-        <input type="text" name="nickname" id="nickname">
 
-        <button type="submit">가입하기</button>
+        <div style="display: flex; flex-direction: column; align-items: stretch;">
+            <input type="text" name="nickname" id="nickname">
+
+            <span id="nickname-msg" style="font-size: 14px; color: hotpink; margin-top: 6px;"></span>
+        </div>
+
+        <div style="text-align: center; margin-top: 6px;">
+            <button type="button" id="check-nickname-btn" style="padding: 8px 16px;">중복확인</button>
+        </div>
+
+        <button type="submit" id="signup-btn">가입하기</button>
     </form>
 </div>
+<script>
+    const nicknameInput = document.getElementById("nickname");
+    const nicknameBtn = document.getElementById("check-nickname-btn");
+    const nicknameMsg = document.getElementById("nickname-msg");
+
+    let nicknameChecked = false;
+
+    nicknameBtn.onclick = function () {
+        const nickname = nicknameInput.value.trim();
+        if (!nickname) {
+            nicknameMsg.style.color = "hotpink";
+            nicknameMsg.innerHTML = "닉네임을 입력해주세요.";
+            nicknameChecked = false;
+            toggleSignupBtn();
+            return;
+        }
+
+        fetch("/auth/api/auth/nickname?nickname=" + encodeURIComponent(nickname))
+            .then(res => res.text())
+            .then(text => {
+                if (text === 'available') {
+                    nicknameMsg.style.color = "lightgreen";
+                    nicknameMsg.innerHTML = "사용 가능한 닉네임입니다.";
+                    nicknameChecked = true;
+                } else {
+                    nicknameMsg.style.color = "hotpink";
+                    nicknameMsg.innerHTML = "이미 사용 중인 닉네임입니다.";
+                    nicknameChecked = false;
+                }
+                toggleSignupBtn();
+            });
+    };
+
+    nicknameInput.oninput = function () {
+        nicknameChecked = false;
+        nicknameMsg.innerHTML = "";
+        toggleSignupBtn();
+    };
+
+    function toggleSignupBtn() {
+        const signupBtn = document.getElementById("signup-btn");
+        const pw = document.getElementById("password").value;
+        const checkPw = document.getElementById("check-password").value;
+        const pwValid = pw === checkPw && pw.length >= 8;
+        signupBtn.disabled = !nicknameChecked || !pwValid;
+    }
+
+    const pwInput = document.getElementById("password");
+    const pwCheckInput = document.getElementById("check-password");
+    const msg = document.getElementById("check-msg");
+    const signupBtn = document.getElementById("signup-btn");
+
+    function validatePasswordMatch() {
+        const pw = pwInput.value;
+        const checkPw = pwCheckInput.value;
+
+        if (!checkPw) {
+            msg.innerHTML = "";
+            signupBtn.disabled = false;
+            return;
+        }
+
+        if (pw === checkPw) {
+            msg.style.color = "lightgreen";
+            msg.innerHTML = "비밀번호가 일치합니다.";
+            signupBtn.disabled = false;
+        } else {
+            msg.style.color = "hotpink";
+            msg.innerHTML = "비밀번호가 일치하지 않습니다.";
+            signupBtn.disabled = true;
+        }
+    }
+
+    pwInput.oninput = validatePasswordMatch;
+    pwCheckInput.oninput = validatePasswordMatch;
+    document.getElementById("password").oninput = function (evt) {
+        const password = evt.target.value;
+        const msgEl = document.getElementById("password-msg");
+
+        const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+
+        if (regex.test(password)) {
+            msgEl.style.color = "lightgreen";
+            msgEl.innerHTML = "사용 가능한 비밀번호입니다.";
+        } else {
+            msgEl.style.color = "hotpink";
+            msgEl.innerHTML = "영문 대소문자 + 숫자 포함 8자 이상 입력해주세요.";
+        }
+    };
+    let timer;
+    document.getElementById("email").oninput = function (evt) {
+        clearTimeout(timer); // 입력 빠르게 하면 이전 요청 제거
+        const email = evt.target.value;
+        const msgEl = document.getElementById("email-msg");
+
+        if (!email) {
+            msgEl.innerHTML = "";
+            return;
+        }
+
+        timer = setTimeout(() => {
+            fetch("/auth/api/auth/available?email=" + email)
+                .then(response => response.text())
+                .then(text => {
+                    if (text === 'not-email') {
+                        msgEl.style.color = "hotpink";
+                        msgEl.innerHTML = "이메일 형식으로 입력해주세요.";
+                    } else if (text === 'available') {
+                        msgEl.style.color = "lightgreen";
+                        msgEl.innerHTML = "사용 가능합니다.";
+                    } else {
+                        msgEl.style.color = "hotpink";
+                        msgEl.innerHTML = "이미 가입된 이메일입니다.";
+                    }
+                });
+        }, 300); // 0.3초 후에 실행
+    };
+</script>
 
 </body>
 </html>

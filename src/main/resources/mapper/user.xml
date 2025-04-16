@@ -18,5 +18,8 @@
         WHERE provider = #{provider}
         AND provider_id = #{providerId}
     </select>
+    <select id="selectByNickname" parameterType="string" resultType="org.codenova.slseproject.entity.User">
+        SELECT * FROM user WHERE nickname = #{nickname}
+    </select>
 
 </mapper>
