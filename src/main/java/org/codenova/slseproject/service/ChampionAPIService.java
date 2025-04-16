@@ -20,10 +20,11 @@ import java.util.Optional;
 @AllArgsConstructor
 public class ChampionAPIService {
 
-    private ChampionRepository championRepository;
-    private UserChampionRepository userChampionRepository;
-    private UserRepository userRepository;
-    private ChampionPostRepository championPostRepository;
+    private final ChampionRepository championRepository;
+    private final UserChampionRepository userChampionRepository;
+    private final UserRepository userRepository;
+    private final ChampionPostRepository championPostRepository;
+
 
     public String buy(Optional<User> user, String championId){
 
@@ -68,53 +69,60 @@ public class ChampionAPIService {
         return "success";
     }
 
-    public List<ChampionPost> post(String championId){
+    // 댓글 리스트 반환
+    public List<ChampionPost> post(String championId) {
         return championPostRepository.selectByChampionId(championId);
     }
 
-    public String insertPost(Optional<User> user, ChampionPost championPost){
-
-        if(user.isEmpty()){
-            return "NNN";
-        }
+    // 댓글 등록
+    public String insertPost(Optional<User> user, ChampionPost championPost) {
+        if (user.isEmpty()) return "NNN";
 
         championPost.setUserId(user.get().getId());
-        championPost.setNickname(user.get().getNickname()); // ✅ 닉네임 세팅
-        championPost.setCreatedAt(LocalDateTime.now());     // ✅ 등록일 세팅
+        championPost.setNickname(user.get().getNickname());     // 닉네임 추가
+        championPost.setCreatedAt(LocalDateTime.now());         // 등록 시간 추가
+        championPost.setDeleted(false);                         // 기본 삭제 상태 false
         championPostRepository.insert(championPost);
 
-        return "OK"; // ✅ 클라이언트와 통일
+        return "OK";
     }
 
-    public void deletePost(Optional<User> user, Integer championPostId){
+    // 댓글 삭제
+    public void deletePost(Optional<User> user, Integer championPostId) {
         if (user.isEmpty()) {
             throw new IllegalStateException("로그인이 필요합니다.");
         }
 
-        ChampionPost championPost = championPostRepository.selectById(championPostId);
-
-        boolean isOwner = user.get().getId() == championPost.getUserId();
-
-        if (!isOwner) {
-            throw new SecurityException("본인만 게시글을 삭제할 수 있습니다.");
+        ChampionPost post = championPostRepository.selectById(championPostId);
+        if (post == null) {
+            throw new IllegalArgumentException("존재하지 않는 게시글입니다.");
         }
 
-        championPostRepository.deletePost(championPost.getId());
+        if (user.get().getId() != post.getUserId()) {
+            throw new SecurityException("본인만 댓글을 삭제할 수 있습니다.");
+        }
+
+        championPostRepository.deletePost(championPostId);
     }
 
-    public void updatePost(Optional<User> user, String content, Integer championPostId){
+    // 댓글 수정
+    public void updatePost(Optional<User> user, String content, Integer championPostId) {
         if (user.isEmpty()) {
             throw new IllegalStateException("로그인이 필요합니다.");
         }
 
-        ChampionPost championPost = championPostRepository.selectById(championPostId);
-
-        boolean isOwner = user.get().getId() == championPost.getUserId(); // ✅ 수정
-
-        if (!isOwner) {
-            throw new SecurityException("본인만 게시글을 수정할 수 있습니다.");
+        ChampionPost post = championPostRepository.selectById(championPostId);
+        if (post == null) {
+            throw new IllegalArgumentException("존재하지 않는 게시글입니다.");
         }
 
+        if (user.get().getId() != post.getUserId()) {
+            throw new SecurityException("본인만 댓글을 수정할 수 있습니다.");
+        }
+
+        post.setContent(content);
+        post.setUpdatedAt(LocalDateTime.now()); // ✅ 수정 시간 기록
         championPostRepository.updatePost(content, championPostId);
     }
+
 }
