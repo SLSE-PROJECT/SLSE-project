@@ -5,36 +5,27 @@
     <title>SLSE-SHOP</title>
     <link rel="stylesheet" href="/css/style.css">
 </head>
-
 <body>
 <!-- 헤더 -->
 <div class="header">
     <div class="logo">
         <a th:href="@{/}"><img src="/img/SLSE-logo.png" alt="로고"></a>
     </div>
-
     <div th:if="${session.user == null}">
         <form th:action="@{/auth/login}">
             <button class="login-btn">로그인</button>
         </form>
     </div>
-
     <div th:if="${session.user != null}" style="display: flex; gap: 10px;">
-        <form th:action="@{/profile}">
-            <button class="login-btn">프로필</button>
-        </form>
-        <form th:action="@{/auth/logout}">
-            <button class="login-btn">로그아웃</button>
-        </form>
+        <form th:action="@{/profile}"><button class="login-btn">프로필</button></form>
+        <form th:action="@{/auth/logout}"><button class="login-btn">로그아웃</button></form>
     </div>
 </div>
 
 <!-- 배너 -->
 <div class="banner-container">
     <div class="banner-slide" id="banner-slide">
-        <img src="/img/banner1.png">
-        <img src="/img/banner2.png">
-        <img src="/img/banner3.png">
+        <img src="/img/banner1.png"><img src="/img/banner2.png"><img src="/img/banner3.png">
     </div>
     <button class="banner-btn banner-prev" onclick="prevSlide()">&lt;</button>
     <button class="banner-btn banner-next" onclick="nextSlide()">&gt;</button>
@@ -45,37 +36,25 @@
     <div class="category-wrap">
         <div class="category-box" id="category-box">
             <h3>카테고리</h3>
-            <ul>
-                <li>전체</li>
-                <li>원거리</li>
-                <li>근거리</li>
-            </ul>
+            <ul><li>전체</li><li>원거리</li><li>근거리</li></ul>
         </div>
         <button id="toggle-btn" class="category-toggle-btn" onclick="toggleCategory()">◀</button>
     </div>
-
     <div class="champion-list-box" id="champion-list">
         <div class="champion-card" th:each="one : ${champions}" th:data-id="${one.id}" th:data-name="${one.name}"
-             th:data-title="${one.title}" th:data-blurb="${one.blurb}" th:data-image-url="${one.imageUrl}"
-             th:data-price="${one.price}">
+             th:data-title="${one.title}" th:data-blurb="${one.blurb}" th:data-image-url="${one.imageUrl}" th:data-price="${one.price}">
             <img th:src="${one.imageUrl}">
             <div th:text="${one.name}" style="margin-top:5px;"></div>
         </div>
     </div>
 </div>
 
-<!-- 모달창 -->
-<div id="overlay"
-     style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); z-index:99;"
-     onclick="closeModal()"></div>
-
-<div id="champion-modal"
-     style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; width:600px; border-radius:8px; z-index:100; max-height:90vh; overflow-y:auto;">
+<!-- 모달 -->
+<div id="overlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); z-index:99;" onclick="closeModal()"></div>
+<div id="champion-modal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; width:600px; border-radius:8px; z-index:100; max-height:90vh; overflow-y:auto;">
     <div style="background:black; color:white; padding:15px; display:flex; justify-content:space-between; align-items:center;">
         <h2 id="modal-name"></h2>
-        <button onclick="closeModal()"
-                style="background:none; border:none; color:white; font-size:20px; cursor:pointer;">X
-        </button>
+        <button onclick="closeModal()" style="background:none; border:none; color:white; font-size:20px; cursor:pointer;">X</button>
     </div>
     <div style="padding:20px; display:flex; gap:20px;">
         <img id="modal-img" style="width:200px; height:200px; object-fit:cover;">
@@ -83,9 +62,7 @@
             <h3 id="modal-title"></h3>
             <p id="modal-blurb" style="font-size:14px; line-height:1.5;"></p>
             <div style="margin-top:10px; display:flex; align-items:center; gap:10px;" th:if="${session.user == null}">
-                <a th:href="@{/auth/login}">
-                    <button class="login-btn-modal">로그인하러가기</button>
-                </a>
+                <a th:href="@{/auth/login}"><button class="login-btn-modal">로그인하러가기</button></a>
             </div>
             <div style="margin-top:10px; display:flex; align-items:center; gap:10px;" th:unless="${session.user == null}">
                 <button id="action-btn" class="login-btn-modal">구매하기</button>
@@ -95,32 +72,27 @@
         </div>
     </div>
 
-    <!-- 댓글영역 -->
+    <!-- 댓글 영역 -->
     <div style="padding: 20px; border-top: 1px solid #eee;">
         <h4 style="margin-bottom: 10px;">댓글</h4>
         <div>
             <textarea id="comment-content" placeholder="댓글을 입력하세요" style="width: 100%; height: 80px;"></textarea>
             <button onclick="submitComment()" style="margin-top: 10px;">등록</button>
         </div>
-        <!-- 댓글 리스트에 스크롤 적용 -->
         <div id="comment-list" style="margin-top: 20px; max-height: 200px; overflow-y: auto; padding-right: 5px;"></div>
     </div>
 </div>
 
 <script>
+    function closeModal() {
+        document.getElementById("overlay").style.display = 'none';
+        document.getElementById("champion-modal").style.display = 'none';
+    }
+
     document.addEventListener("DOMContentLoaded", function () {
-        const overlay = document.getElementById("overlay");
-        const modal = document.getElementById("champion-modal");
-
-        window.closeModal = function () {
-            overlay.style.display = 'none';
-            modal.style.display = 'none';
-        }
-
         document.querySelectorAll('.champion-card').forEach(card => {
             card.addEventListener('click', (evt) => {
                 const data = evt.currentTarget.dataset;
-
                 document.getElementById("modal-name").innerText = data.name;
                 document.getElementById("modal-title").innerText = data.title;
                 document.getElementById("modal-blurb").innerText = data.blurb;
@@ -128,9 +100,8 @@
                 document.getElementById("modal-price").innerText = parseInt(data.price).toLocaleString() + ' SLSE';
                 document.getElementById("modal-champion-id").value = data.id;
 
-                overlay.style.display = 'block';
-                modal.style.display = 'block';
-
+                document.getElementById("overlay").style.display = 'block';
+                document.getElementById("champion-modal").style.display = 'block';
                 loadComments();
             });
         });
@@ -139,10 +110,8 @@
         if (actionBtn) {
             actionBtn.onclick = function () {
                 const championId = document.getElementById("modal-champion-id").value;
-
-                fetch("/trade/buy?champion-id=" + encodeURIComponent(championId), {
-                    method: "get"
-                }).then(res => res.text())
+                fetch("/trade/buy?champion-id=" + encodeURIComponent(championId), { method: "get" })
+                    .then(res => res.text())
                     .then(result => {
                         if (result === 'NNNN') alert("오류가 생겼습니다");
                         else if (result === 'NNN') alert("이미 보유 중인 챔피언입니다");
@@ -151,13 +120,12 @@
                             closeModal();
                         }
                     });
-            }
+            };
         }
     });
 
     function loadComments() {
         const championId = document.getElementById("modal-champion-id").value;
-
         fetch(`/champion/comments?champion-id=${championId}`)
             .then(res => res.json())
             .then(data => {
@@ -170,10 +138,19 @@
                 }
 
                 data.forEach(comment => {
+                    const isMine = comment.isMine;
                     const div = document.createElement("div");
                     div.style.borderBottom = "1px solid #ddd";
                     div.style.padding = "10px 0";
-                    div.innerHTML = `<b>${comment.nickname || '익명'}</b><br>${comment.content}<br><small style="color:gray;">${comment.createdAt}</small>`;
+                    div.innerHTML = `
+                        <b>${comment.nickname || '익명'}</b>
+                        ${isMine ? `
+                            <button onclick="editComment(${comment.id}, '${comment.content}')">✎</button>
+                            <button onclick="deleteComment(${comment.id})">🗑</button>` : ''}
+                        <br>
+                        <div id="comment-content-${comment.id}">${comment.content}</div>
+                        <small style="color:gray;">${comment.createdAt}</small>
+                    `;
                     list.appendChild(div);
                 });
             });
@@ -191,17 +168,57 @@
         fetch('/champion/post', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: new URLSearchParams({
-                championId: championId,
-                content: content
-            })
+            body: new URLSearchParams({ championId, content })
         }).then(res => res.text())
             .then(result => {
                 if (result === 'OK' || result === 'YYY') {
                     document.getElementById("comment-content").value = '';
-                    loadComments(); // 등록 후 댓글 갱신
+                    loadComments();
                 } else {
                     alert("댓글 등록 실패: " + result);
+                }
+            });
+    }
+
+    function editComment(id, content) {
+        const container = document.getElementById(`comment-content-${id}`);
+        container.innerHTML = `
+            <textarea id="edit-content-${id}" style="width:100%;">${content}</textarea>
+            <button onclick="submitEdit(${id})">수정 완료</button>
+        `;
+    }
+
+    function submitEdit(id) {
+        const content = document.getElementById(`edit-content-${id}`).value;
+
+        fetch('/champion/update-post', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({
+                'champion-post-id': id,
+                content
+            })
+        }).then(res => res.text())
+            .then(result => {
+                if (result === 'OK') {
+                    loadComments();
+                } else {
+                    alert("수정 실패");
+                }
+            });
+    }
+
+    function deleteComment(id) {
+        if (!confirm("정말 삭제하시겠습니까?")) return;
+
+        fetch(`/champion/delete-post?champion-post-id=${id}`, {
+            method: "POST"
+        }).then(res => res.text())
+            .then(result => {
+                if (result === 'OK') {
+                    loadComments();
+                } else {
+                    alert("삭제 실패: " + result);
                 }
             });
     }
@@ -233,13 +250,12 @@
     window.prevSlide = function () {
         currentIndex = (currentIndex - 1 + totalSlide) % totalSlide;
         showSlide(currentIndex);
-    }
+    };
 
     window.nextSlide = function () {
         currentIndex = (currentIndex + 1) % totalSlide;
         showSlide(currentIndex);
-    }
+    };
 </script>
-
 </body>
 </html>
