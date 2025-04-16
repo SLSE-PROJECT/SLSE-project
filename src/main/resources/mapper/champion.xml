@@ -14,11 +14,14 @@
 
 
     <select id="findByChampionId" resultType="champion">
-        SELECT * FROM champion WHERE champion_id = #{championId}
+        SELECT * FROM champion WHERE id = #{championId}
     </select>
 
     <select id="findByName" resultType="champion">
         SELECT * FROM champion WHERE name = #{name}
+    </select>
 
+    <select id="selectByWord" resultType="champion">
+        select * from champion where id like #{word}
     </select>
 </mapper>

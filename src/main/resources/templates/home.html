@@ -87,10 +87,11 @@
                     <button class="login-btn-modal">로그인하러가기</button>
                 </a>
             </div>
-            <div style="margin-top:10px; display:flex; align-items:center; gap:10px;" th:unless="${session.user == null}">
+            <div style="margin-top:10px; display:flex; align-items:center; gap:10px;"
+                 th:unless="${session.user == null}">
                 <button id="action-btn" class="login-btn-modal">구매하기</button>
                 <span id="modal-price" style="font-size:14px; color:gray;"></span>
-                <input id="modal-champion-id" type="hidden" name="champion-id">
+                <input id="modal-champion-id" type="hidden">
             </div>
         </div>
     </div>
@@ -139,15 +140,15 @@
         if (actionBtn) {
             actionBtn.onclick = function () {
                 const championId = document.getElementById("modal-champion-id").value;
-
-                fetch("/trade/buy?champion-id=" + encodeURIComponent(championId), {
+                console.log(championId)
+                fetch("/champion/buy?champion-id=" + encodeURIComponent(championId), {
                     method: "get"
                 }).then(res => res.text())
                     .then(result => {
-                        if (result === 'NNNN') alert("오류가 생겼습니다");
-                        else if (result === 'NNN') alert("이미 보유 중인 챔피언입니다");
-                        else {
-                            alert("구매가 완료되었습니다");
+                        if (result === 'failed') {
+                            window.alert("오류가 생겼습니다");
+                        }else if (result === 'success') {
+                            window.alert("구매가 완료되었습니다");
                             closeModal();
                         }
                     });
@@ -190,7 +191,7 @@
 
         fetch('/champion/post', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
             body: new URLSearchParams({
                 championId: championId,
                 content: content
@@ -239,6 +240,7 @@
         currentIndex = (currentIndex + 1) % totalSlide;
         showSlide(currentIndex);
     }
+
 </script>
 
 </body>

@@ -25,27 +25,29 @@ public class ChampionAPIService {
     private UserRepository userRepository;
     private ChampionPostRepository championPostRepository;
 
-    @Transactional
     public String buy(Optional<User> user, String championId){
 
+        System.out.println(championRepository.findByChampionId(championId));
+
         if(user.isEmpty()){
-            return "NNNN";
+            return "failed";
         }
 
         Champion champion = championRepository.findByChampionId(championId);
         if(champion == null){
-            return "NNNN";
+            return "failed";
         }
 
         if(userChampionRepository.alreadyOwned(user.get().getId(), championId) != null){
-            return "NNNN";
+            return "failed";
         }
 
         if(user.get().getSLSE() < champion.getPrice()){
-            return "NNNN";
+            return "failed";
         }
 
-        Integer SLSE = user.get().getSLSE() - champion.getPrice();
+        int currentSLSE = userRepository.selectByEmail(user.get().getEmail()).getSLSE();
+        Integer SLSE = currentSLSE - champion.getPrice();
         userRepository.updateSLSE(SLSE, user.get().getId());
 
         UserChampion userChampion = UserChampion.builder()
@@ -56,9 +58,14 @@ public class ChampionAPIService {
                 .imageUrl(champion.getImageUrl())
                 .blurb(champion.getBlurb())
                 .build();
-        userChampionRepository.insert(userChampion);
+        try {
+            userChampionRepository.insert(userChampion);
+            System.out.println("인서트 성공");
+        } catch (Exception e) {
+            System.out.println(e);
+        }
 
-        return "YYYY";
+        return "success";
     }
 
     public List<ChampionPost> post(String championId){

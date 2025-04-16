@@ -13,4 +13,6 @@ public interface ChampionRepository {
     Champion findByChampionId(String championId);
   
     Champion findByName(String name);
+
+    List<Champion> selectByWord(String word);
 }
