@@ -47,7 +47,7 @@ public class ChampionAPIService {
             return "failed";
         }
 
-        int currentSLSE = userRepository.selectByEmail(user.get().getEmail()).getSLSE();
+        int currentSLSE = userRepository.selectByid(user.get().getId()).getSLSE();
         Integer SLSE = currentSLSE - champion.getPrice();
         userRepository.updateSLSE(SLSE, user.get().getId());
 
