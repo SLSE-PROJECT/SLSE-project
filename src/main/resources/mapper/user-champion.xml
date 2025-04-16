@@ -5,8 +5,8 @@
 <mapper namespace="org.codenova.slseproject.repository.UserChampionRepository">
 
         <insert id="insert">
-                INSERT INTO user_champion (user_id, champion_id, name, title, image_url)
-                VALUES (#{userId}, #{championId}, #{name}, #{title}, #{imageUrl})
+                INSERT INTO user_champion (user_id, champion_id, name, title, image_url, blurb)
+                VALUES (#{userId}, #{championId}, #{name}, #{title}, #{imageUrl}, #{blurb})
         </insert>
 
         <insert id="saveAll">
