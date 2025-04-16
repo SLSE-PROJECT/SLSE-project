@@ -11,6 +11,8 @@ public interface UserRepository {
 
     User selectByEmail(String email);
 
+    User selectByid(Integer id);
+
     User selectByProviderAndProviderId(@Param("provider") String provider, @Param("providerId") String providerId);
 
 

@@ -13,6 +13,10 @@
         SELECT * FROM user WHERE email = #{email}
     </select>
 
+    <select id="selectById" resultType="user">
+        SELECT * FROM user WHERE id = #{id}
+    </select>
+
     <select id="selectByProviderAndProviderId" resultType="user">
         SELECT * FROM user
         WHERE provider = #{provider}

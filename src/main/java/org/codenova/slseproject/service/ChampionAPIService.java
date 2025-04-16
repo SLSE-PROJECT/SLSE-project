@@ -47,7 +47,7 @@ public class ChampionAPIService {
             return "failed";
         }
 
-        int currentSLSE = userRepository.selectByEmail(user.get().getEmail()).getSLSE();
+        int currentSLSE = userRepository.selectByid(user.get().getId()).getSLSE();
         Integer SLSE = currentSLSE - champion.getPrice();
         userRepository.updateSLSE(SLSE, user.get().getId());
 
@@ -61,7 +61,6 @@ public class ChampionAPIService {
                 .build();
         try {
             userChampionRepository.insert(userChampion);
-            System.out.println("인서트 성공");
         } catch (Exception e) {
             System.out.println(e);
         }
