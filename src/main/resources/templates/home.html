@@ -85,7 +85,7 @@
             <p id="modal-blurb" style="font-size:14px; line-height:1.5;"></p>
             <div style="margin-top:10px; display:flex; align-items:center; gap:10px;" th:if="${session.user == null}">
                 <a th:href="@{/auth/login}">
-                    <button class="login-btn-modal">로그인하로가기</button>
+                    <button class="login-btn-modal">로그인하러가기</button>
                 </a>
 
             </div>
@@ -104,92 +104,99 @@
 </div>
 
 <script>
-    const overlay = document.getElementById("overlay");
-    const modal = document.getElementById("champion-modal");
+    document.addEventListener("DOMContentLoaded", function () {
+        const overlay = document.getElementById("overlay");
+        const modal = document.getElementById("champion-modal");
 
-    function closeModal() {
-        overlay.style.display = 'none';
-        modal.style.display = 'none';
-    }
-
-    document.querySelectorAll('.champion-card').forEach(card => {
-        card.addEventListener('click', (evt) => {
-            console.log(evt.currentTarget.dataset);
-            document.getElementById("modal-name").innerText = evt.currentTarget.dataset.name;
-            document.getElementById("modal-title").innerText = evt.currentTarget.dataset.title;
-            document.getElementById("modal-blurb").innerText = evt.currentTarget.dataset.blurb;
-            document.getElementById("modal-img").src = evt.currentTarget.dataset.imageUrl;
-            if (document.getElementById("modal-price")) {
-                document.getElementById("modal-price").innerText = evt.currentTarget.dataset.price.toLocaleString() + ' SLSE';
-            }
-            document.getElementById("modal-champion-id").value= evt.currentTarget.dataset.id;
-
-            document.getElementById('modal-champion-id').value = evt.currentTarget.dataset.id;
-
-            overlay.style.display = 'block';
-            modal.style.display = 'block';
-        });
-    });
-
-    let categoryVisible = true;
-
-    function toggleCategory() {
-        const categoryBox = document.getElementById('category-box');
-        const championList = document.getElementById('champion-list');
-        const toggleBtn = document.getElementById('toggle-btn');
-
-        if (categoryVisible) {
-            categoryBox.classList.add('collapsed');
-            championList.style.gridTemplateColumns = 'repeat(6, 1fr)';
-            toggleBtn.textContent = '▶';
-        } else {
-            categoryBox.classList.remove('collapsed');
-            championList.style.gridTemplateColumns = 'repeat(5, 1fr)';
-            toggleBtn.textContent = '◀';
+        function closeModal() {
+            overlay.style.display = 'none';
+            modal.style.display = 'none';
         }
-        categoryVisible = !categoryVisible;
-    }
+        window.closeModal = closeModal
 
-    const slide = document.getElementById('banner-slide');
-    const totalSlide = slide.children.length;
-    let currentIndex = 0;
+        document.querySelectorAll('.champion-card').forEach(card => {
+            card.addEventListener('click', (evt) => {
+                const data = evt.currentTarget.dataset;
 
-    function showSlide(index) {
-        slide.style.transform = 'translateX(' + (-index * 100) + '%)';
-    }
+                document.getElementById("modal-name").innerText = data.name;
+                document.getElementById("modal-title").innerText = data.title;
+                document.getElementById("modal-blurb").innerText = data.blurb;
+                document.getElementById("modal-img").src = data.imageUrl;
 
-    function prevSlide() {
-        currentIndex = (currentIndex - 1 + totalSlide) % totalSlide;
-        showSlide(currentIndex);
-    }
+                const priceEl = document.getElementById("modal-price");
+                if (priceEl) {
+                    priceEl.innerText = parseInt(data.price).toLocaleString() + ' SLSE';
+                }
 
-    function nextSlide() {
-        currentIndex = (currentIndex + 1) % totalSlide;
-        showSlide(currentIndex);
-    }
+                const champIdInput = document.getElementById("modal-champion-id");
+                if (champIdInput) {
+                    champIdInput.value = data.id;
+                }
 
-    document.getElementById("action-btn").onclick=function (evt){
-        fetch("/trade/buy" , {
-            method : "get"
-        }).then(function (response) {
-            return response.text();
-
-        }).then(function (result) {
-
-            if(result === 'NNNN'){
-                window.alert("오류가 생겼습니다")
-            }else{
-                window.alert("구매가 완료되었습니다 ")
-
-            if(result === 'NNN'){
-                window.alert("오류가 생겼습니다")
-
-            }else{
-                window.alert("구매가 완료되었습니다")
-
-            }
+                overlay.style.display = 'block';
+                modal.style.display = 'block';
+            });
         });
-    };
+
+        let categoryVisible = true;
+
+        function toggleCategory() {
+            const categoryBox = document.getElementById('category-box');
+            const championList = document.getElementById('champion-list');
+            const toggleBtn = document.getElementById('toggle-btn');
+
+            if (categoryVisible) {
+                categoryBox.classList.add('collapsed');
+                championList.style.gridTemplateColumns = 'repeat(6, 1fr)';
+                toggleBtn.textContent = '▶';
+            } else {
+                categoryBox.classList.remove('collapsed');
+                championList.style.gridTemplateColumns = 'repeat(5, 1fr)';
+                toggleBtn.textContent = '◀';
+            }
+            categoryVisible = !categoryVisible;
+        }
+
+        const slide = document.getElementById('banner-slide');
+        const totalSlide = slide.children.length;
+        let currentIndex = 0;
+
+        function showSlide(index) {
+            slide.style.transform = 'translateX(' + (-index * 100) + '%)';
+        }
+
+        window.prevSlide = function () {
+            currentIndex = (currentIndex - 1 + totalSlide) % totalSlide;
+            showSlide(currentIndex);
+        }
+
+        window.nextSlide = function () {
+            currentIndex = (currentIndex + 1) % totalSlide;
+            showSlide(currentIndex);
+        }
+
+        const actionBtn = document.getElementById("action-btn");
+        if (actionBtn) {
+            actionBtn.onclick = function (evt) {
+                const championId = document.getElementById("modal-champion-id").value;
+
+                fetch("/trade/buy?champion-id=" + encodeURIComponent(championId), {
+                    method: "get"
+                }).then(function (response) {
+                    return response.text();
+                }).then(function (result) {
+                    if (result === 'NNNN') {
+                        window.alert("오류가 생겼습니다");
+                    } else if (result === 'NNN') {
+                        window.alert("이미 보유 중인 챔피언입니다");
+                    } else {
+                        window.alert("구매가 완료되었습니다");
+                        closeModal();
+                    }
+                });
+            };
+        }
+    });
 </script>
 
 </body>
