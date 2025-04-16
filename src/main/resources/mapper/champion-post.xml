@@ -6,4 +6,20 @@
     <insert id="insert">
         insert into champion_post (user_id, champion_id, content) values (#{userId}, #{championId}, #{content})
     </insert>
+
+    <select id="selectByChampionId" resultType="championPost">
+        select * from champion_post where champion_id = #{championId} and is_deleted = false
+    </select>
+
+    <select id="selectById" resultType="championPost">
+        select * from champion_post where id = #{id}
+    </select>
+
+    <update id="updatePost">
+        update champion_post set content = #{content} where id = #{id}
+    </update>
+
+    <update id="deletePost">
+        update champion_post set is_deleted = true where id = #{id}
+    </update>
 </mapper>
