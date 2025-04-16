@@ -28,5 +28,4 @@
         <select id="alreadyOwned" resultType="userChampion">
                 select * from user_champion where user_id = #{userId} and champion_id = #{championId}
         </select>
-
 </mapper>

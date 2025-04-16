@@ -22,4 +22,8 @@
         SELECT * FROM user WHERE nickname = #{nickname}
     </select>
 
+    <update id="updateSLSE">
+        update user set SLSE = #{SLSE} where id = #{userId}
+    </update>
+
 </mapper>

@@ -93,13 +93,14 @@
                  th:unless="${session.user == null}">
                 <button id="action-btn" class="login-btn-modal">구매하기</button>
                 <span id="modal-price" style="font-size:14px; color:gray;"></span>
+
                 <input id="modal-champion-id" type="hidden" name="champion-id">
+
             </div>
 
 
         </div>
     </div>
-</div>
 </div>
 
 <script>
@@ -122,6 +123,8 @@
                 document.getElementById("modal-price").innerText = evt.currentTarget.dataset.price.toLocaleString() + ' SLSE';
             }
             document.getElementById("modal-champion-id").value= evt.currentTarget.dataset.id;
+
+            document.getElementById('modal-champion-id').value = evt.currentTarget.dataset.id;
 
             overlay.style.display = 'block';
             modal.style.display = 'block';
@@ -172,6 +175,12 @@
             return response.text();
 
         }).then(function (result) {
+
+            if(result === 'NNNN'){
+                window.alert("오류가 생겼습니다")
+            }else{
+                window.alert("구매가 완료되었습니다 ")
+
             if(result === 'NNN'){
                 window.alert("오류가 생겼습니다")
 

@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.codenova.slseproject.entity.User;
 import org.codenova.slseproject.repository.UserRepository;
 import org.codenova.slseproject.request.EmailCheck;
+import org.codenova.slseproject.service.ChampionService;
 import org.codenova.slseproject.service.GoogleApi;
 import org.codenova.slseproject.service.KakaoApi;
 import org.codenova.slseproject.service.NaverApi;
@@ -29,10 +30,10 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 public class Auth {
 
-    private final UserRepository userRepository;
-    private final KakaoApi kakaoApiService;
-    private final NaverApi naverApiService;
-    private final GoogleApi googleApiService;
+    private UserRepository userRepository;
+    private KakaoApi kakaoApiService;
+    private NaverApi naverApiService;
+    private ChampionService championService;
 
     @GetMapping("/signup")
     public String signup() {
@@ -44,6 +45,9 @@ public class Auth {
         if (result.hasErrors()) {
             return "auth/signup";
         }
+
+
+        championService.getOrCreateUserChampions(user);
 
         if (!email.getEmail().contains("@")) {
             model.addAttribute("emailError", "이메일 형식이 올바르지 않습니다.");
@@ -59,6 +63,7 @@ public class Auth {
             model.addAttribute("passwordError", "비밀번호는 영문 대소문자와 숫자를 포함해 8자 이상이어야 합니다.");
             return "auth/signup";
         }
+
 
         user.setEmail(email.getEmail());
         userRepository.create(user);
