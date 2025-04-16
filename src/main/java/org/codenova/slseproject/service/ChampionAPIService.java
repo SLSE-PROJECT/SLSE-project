@@ -61,7 +61,6 @@ public class ChampionAPIService {
                 .build();
         try {
             userChampionRepository.insert(userChampion);
-            System.out.println("인서트 성공");
         } catch (Exception e) {
             System.out.println(e);
         }
