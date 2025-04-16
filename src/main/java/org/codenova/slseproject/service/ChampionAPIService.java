@@ -12,6 +12,7 @@ import org.codenova.slseproject.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -59,7 +60,11 @@ public class ChampionAPIService {
         return "YYYY";
     }
 
-    public String post(Optional<User> user, ChampionPost championPost){
+    public List<ChampionPost> post(String championId){
+        return championPostRepository.selectByChampionId(championId);
+    }
+
+    public String insertPost(Optional<User> user, ChampionPost championPost){
 
         if(user.isEmpty()){
             return "NNN";
@@ -69,5 +74,35 @@ public class ChampionAPIService {
         championPostRepository.insert(championPost);
 
         return "YYY";
+    }
+
+    public void deletePost(Optional<User> user, Integer championPostId){
+        if (user.isEmpty()) {
+            throw new IllegalStateException("로그인이 필요합니다.");
+        }
+
+        ChampionPost championPost = championPostRepository.selectById(championPostId);
+
+        boolean isOwner = user.get().getId() == championPost.getUserId();
+
+        if (!isOwner) {
+            throw new SecurityException("본인만 게시글을 삭제할 수 있습니다.");
+        }
+
+        championPostRepository.deletePost(championPost.getId());
+    }
+
+    public void updatePost(Optional<User> user, String content, Integer championPostId){
+        if (user.isEmpty()) {
+            throw new IllegalStateException("로그인이 필요합니다.");
+        }
+
+        boolean isOwner = user.get().getId() == championPostId;
+
+        if (!isOwner) {
+            throw new SecurityException("본인만 게시글을 수정할 수 있습니다.");
+        }
+
+        championPostRepository.updatePost(content, championPostId);
     }
 }
