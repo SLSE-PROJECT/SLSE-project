@@ -25,20 +25,31 @@ public class ChampionAPIService {
     private final UserRepository userRepository;
     private final ChampionPostRepository championPostRepository;
 
-    // 챔피언 구매 로직
-    @Transactional
-    public String buy(Optional<User> user, String championId) {
-        if (user.isEmpty()) return "NNNN";
+
+    public String buy(Optional<User> user, String championId){
+
+        System.out.println(championRepository.findByChampionId(championId));
+
+        if(user.isEmpty()){
+            return "failed";
+        }
 
         Champion champion = championRepository.findByChampionId(championId);
-        if (champion == null) return "NNNN";
+        if(champion == null){
+            return "failed";
+        }
 
-        if (userChampionRepository.alreadyOwned(user.get().getId(), championId) != null) return "NNNN";
+        if(userChampionRepository.alreadyOwned(user.get().getId(), championId) != null){
+            return "failed";
+        }
 
-        if (user.get().getSLSE() < champion.getPrice()) return "NNNN";
+        if(user.get().getSLSE() < champion.getPrice()){
+            return "failed";
+        }
 
-        int updatedSlse = user.get().getSLSE() - champion.getPrice();
-        userRepository.updateSLSE(updatedSlse, user.get().getId());
+        int currentSLSE = userRepository.selectByEmail(user.get().getEmail()).getSLSE();
+        Integer SLSE = currentSLSE - champion.getPrice();
+        userRepository.updateSLSE(SLSE, user.get().getId());
 
         UserChampion userChampion = UserChampion.builder()
                 .userId(user.get().getId())
@@ -48,9 +59,14 @@ public class ChampionAPIService {
                 .imageUrl(champion.getImageUrl())
                 .blurb(champion.getBlurb())
                 .build();
-        userChampionRepository.insert(userChampion);
+        try {
+            userChampionRepository.insert(userChampion);
+            System.out.println("인서트 성공");
+        } catch (Exception e) {
+            System.out.println(e);
+        }
 
-        return "YYYY";
+        return "success";
     }
 
     // 댓글 리스트 반환
