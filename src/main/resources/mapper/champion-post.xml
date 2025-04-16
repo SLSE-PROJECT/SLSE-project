@@ -20,7 +20,9 @@
     </select>
 
     <update id="updatePost">
-        update champion_post set content = #{content} where id = #{id}
+        UPDATE champion_post
+        SET content = #{content}, updated_at = NOW()
+        WHERE id = #{id}
     </update>
 
     <update id="deletePost">
