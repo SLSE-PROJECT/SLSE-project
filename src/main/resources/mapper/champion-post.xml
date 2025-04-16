@@ -3,14 +3,18 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.codenova.slseproject.repository.ChampionPostRepository">
-    <insert id="insert">
-        insert into champion_post (user_id, champion_id, content) values (#{userId}, #{championId}, #{content})
+    <insert id="insert" parameterType="ChampionPost">
+        INSERT INTO champion_post (user_id, champion_id, content, created_at, nickname, is_deleted)
+        VALUES (#{userId}, #{championId}, #{content}, #{createdAt, jdbcType=TIMESTAMP}, #{nickname}, false)
     </insert>
 
-    <select id="selectByChampionId" resultType="championPost">
-        select * from champion_post where champion_id = #{championId} and is_deleted = false
+    <select id="selectByChampionId" resultType="ChampionPost">
+        SELECT id, user_id, champion_id, content, created_at, nickname
+        FROM champion_post
+        WHERE champion_id = #{championId}
+        AND is_deleted = false
+        ORDER BY created_at DESC
     </select>
-
     <select id="selectById" resultType="championPost">
         select * from champion_post where id = #{id}
     </select>

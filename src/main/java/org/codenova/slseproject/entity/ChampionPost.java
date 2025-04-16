@@ -1,4 +1,5 @@
 package org.codenova.slseproject.entity;
+import java.time.LocalDateTime;
 
 import lombok.Data;
 
@@ -12,4 +13,5 @@ public class ChampionPost {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private boolean isDeleted;
+    private String nickname;
 }
