@@ -12,4 +12,6 @@ public interface UserRepository {
     User selectByEmail(String email);
 
     User selectByProviderAndProviderId(@Param("provider") String provider, @Param("providerId") String providerId);
+
+    void updateSLSE(@Param("SLSE") Integer SLSE, @Param("userId") Integer userId);
 }
