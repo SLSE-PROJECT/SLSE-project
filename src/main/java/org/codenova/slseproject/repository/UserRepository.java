@@ -20,4 +20,7 @@ public interface UserRepository {
 
     User selectByNickname(String nickname);
 
+    void deductUserSLSE(@Param("userId") int userId, @Param("amount") int amount);
+
+
 }

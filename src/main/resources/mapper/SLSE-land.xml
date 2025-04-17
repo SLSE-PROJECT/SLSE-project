@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.codenova.slseproject.repository.RouletteRepository">
+
+    <update id="increasePointPool">
+        UPDATE point_pool SET total_amount = total_amount + #{amount} WHERE id = 1
+    </update>
+
+    <insert id="insertHistory">
+        INSERT INTO roulette_history (user_id, reward_type, reward_value)
+        VALUES (#{userId}, #{rewardType}, #{rewardValue})
+    </insert>
+
+    <insert id="insertCoupon">
+        INSERT INTO user_coupon (user_id)
+        VALUES (#{userId})
+    </insert>
+
+    <update id="deductUserSLSE">
+        UPDATE user
+        SET slse = slse - #{amount}
+        WHERE id = #{userId} AND slse >= #{amount}
+    </update>
+
+    <update id="updateUserSLSE">
+        UPDATE user SET slse = slse + #{amount} WHERE id = #{userId}
+    </update>
+
+    <select id="selectRewardItemById" resultType="rewardItem">
+        SELECT * FROM reward_item WHERE id = #{id}
+    </select>
+
+    <insert id="insertUserItem">
+        INSERT INTO user_item (user_id, item_id)
+        VALUES (#{userId}, #{itemId})
+    </insert>
+
+    <select id="selectRandomRewardItem" resultType="org.codenova.slseproject.entity.SLSELand.RewardItem">
+        SELECT * FROM reward_item
+        ORDER BY RAND()
+        LIMIT 1
+    </select>
+</mapper>

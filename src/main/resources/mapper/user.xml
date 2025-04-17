@@ -30,4 +30,8 @@
         update user set SLSE = #{SLSE} where id = #{userId}
     </update>
 
+    <update id="deductUserSLSE">
+        UPDATE user SET slse = slse - #{amount} WHERE id = #{userId} AND slse >= #{amount}
+    </update>
+
 </mapper>
