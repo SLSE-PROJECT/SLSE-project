@@ -41,10 +41,23 @@
         <button id="toggle-btn" class="category-toggle-btn" onclick="toggleCategory()">◀</button>
     </div>
     <div class="champion-list-box" id="champion-list">
-        <div class="champion-card" th:each="one : ${champions}" th:data-id="${one.id}" th:data-name="${one.name}"
-             th:data-title="${one.title}" th:data-blurb="${one.blurb}" th:data-image-url="${one.imageUrl}" th:data-price="${one.price}">
-            <img th:src="${one.imageUrl}">
-            <div th:text="${one.name}" style="margin-top:5px;"></div>
+        <div class="champion-card" th:each="one : ${champions}"
+             th:data-id="${one.id}" th:data-name="${one.name}"
+             th:data-title="${one.title}" th:data-blurb="${one.blurb}"
+             th:data-image-url="${one.imageUrl}" th:data-price="${one.price}">
+
+            <div style="position: relative;">
+                <img th:src="${one.imageUrl}" style="width: 200px; height: 200px; object-fit: cover;">
+
+                <th:block th:if="${session.user != null}">
+                    <button class="like-btn" th:data-id="${one.id}"
+                            style="position: absolute; bottom: 5px; left: 5px; background: none; border: none; cursor: pointer;">
+                        <img th:src="@{/img/heart-border.png}" class="like-icon" style="width: 40px; height: 40px; object-fit: contain;">
+                    </button>
+                </th:block>
+            </div>
+
+            <div th:text="${one.name}" style="margin-top:5px; text-align: center;"></div>
         </div>
     </div>
 </div>
@@ -73,7 +86,6 @@
             </div>
         </div>
     </div>
-
     <!-- 댓글 영역 -->
     <div style="padding: 20px; border-top: 1px solid #eee;">
         <h4 style="margin-bottom: 10px;">댓글</h4>
@@ -272,7 +284,35 @@
         showSlide(currentIndex);
 
     }
+    document.addEventListener("DOMContentLoaded", () => {
+        fetch("/api/like/my")
+            .then(res => res.json())
+            .then(likedIds => {
+                document.querySelectorAll(".like-btn").forEach(btn => {
+                    const champId = btn.dataset.id;
+                    if (likedIds.includes(champId)) {
+                        const img = btn.querySelector(".like-icon");
+                        img.src = "/img/heart-pink.png";
+                    }
+                });
+            });
 
+        document.querySelectorAll(".like-btn").forEach(btn => {
+            btn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                const championId = btn.dataset.id;
+
+                fetch(`/api/like/${championId}`, {
+                    method: "POST"
+                })
+                    .then(res => res.text())
+                    .then(result => {
+                        const img = btn.querySelector(".like-icon");
+                        img.src = (result === "liked") ? "/img/heart-pink.png" : "/img/heart-border.png";
+                    });
+            });
+        });
+    });
 
 </script>
 </body>
