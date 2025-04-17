@@ -219,10 +219,10 @@ function searchChampion() {
     const keyword = document.getElementById("search-input").value;
 
     fetch("/api/like/my")
-        .then(res => res.json())
+        .then(res => res.ok ? res.json() : [])  // 실패해도 빈 배열로 넘기기
+        .catch(() => []) // 완전 실패 시에도 빈 배열
         .then(data => {
             likedChampionIds = data;
-
 
             return fetch(`/champion/search?word=${encodeURIComponent(keyword)}`);
         })
@@ -246,11 +246,9 @@ function searchChampion() {
                 card.dataset.imageUrl = one.imageUrl;
                 card.dataset.price = one.price;
 
-                const heartMap = {
-                    true: "/img/heart-pink.png",
-                    false: "/img/heart-border.png"
-                };
-                const heartSrc = heartMap[likedChampionIds.includes(one.id)];
+                const heartSrc = likedChampionIds.includes(one.id)
+                    ? "/img/heart-pink.png"
+                    : "/img/heart-border.png";
 
                 card.innerHTML = `
                     <div style="position: relative;">
@@ -260,9 +258,8 @@ function searchChampion() {
                             <img src="${heartSrc}" class="like-icon" style="width: 40px; height: 40px; object-fit: contain;">
                         </button>
                     </div>
-                    <div style="margin-top:5px; text-align: center;">${one.name}</div>
-                `;
-
+                    <div style="margin-top:5px; text-align: center;">${one.name}</div> 
+                  `;
 
                 card.addEventListener("click", (evt) => {
                     const data = evt.currentTarget.dataset;
@@ -303,7 +300,8 @@ function applySort() {
     const [type, sort] = value.split("-");
 
     fetch("/api/like/my")
-        .then(res => res.json())
+        .then(res => res.ok ? res.json() : [])
+        .catch(() => [])
         .then(likedChampionIds => {
             return fetch(`/sort?type=${type}&sort=${sort}`)
                 .then(res => res.json())
@@ -323,10 +321,9 @@ function applySort() {
                 card.dataset.imageUrl = one.imageUrl;
                 card.dataset.price = one.price;
 
-                let heartSrc = "/img/heart-border.png";
-                if (likedChampionIds.includes(one.id)) {
-                    heartSrc = "/img/heart-pink.png";
-                }
+                let heartSrc = likedChampionIds.includes(one.id)
+                    ? "/img/heart-pink.png"
+                    : "/img/heart-border.png";
 
                 card.innerHTML = `
                     <div style="position: relative;">
@@ -339,17 +336,15 @@ function applySort() {
                     <div style="margin-top:5px; text-align: center;">${one.name}</div>
                 `;
 
-                // 상세 모달 이벤트 바인딩
-                card.addEventListener('click', (evt) => {
+                card.addEventListener("click", (evt) => {
                     const data = evt.currentTarget.dataset;
                     document.getElementById("modal-name").innerText = data.name;
                     document.getElementById("modal-title").innerText = data.title;
                     document.getElementById("modal-blurb").innerText = data.blurb;
                     document.getElementById("modal-img").src = data.imageUrl;
                     document.getElementById("modal-champion-id").value = data.id;
-                    if (document.getElementById("modal-price")) {
-                        document.getElementById("modal-price").innerText = parseInt(data.price).toLocaleString() + ' SLSE';
-                    }
+                    document.getElementById("modal-price").innerText = parseInt(data.price).toLocaleString() + ' SLSE';
+
                     document.getElementById("overlay").style.display = 'block';
                     document.getElementById("champion-modal").style.display = 'block';
                     loadComments();
@@ -358,7 +353,6 @@ function applySort() {
                 listBox.appendChild(card);
             });
 
-            // 좋아요 버튼 이벤트 바인딩
             document.querySelectorAll(".like-btn").forEach(btn => {
                 btn.addEventListener("click", (e) => {
                     e.stopPropagation();
