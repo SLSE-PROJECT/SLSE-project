@@ -8,10 +8,18 @@
         body {
             margin: 0;
             padding: 0;
-            background: url('/img/sudden_background.jpg') no-repeat center center fixed;
-            background-size: cover;
             font-family: 'Orbitron', sans-serif;
             color: white;
+        }
+        .video-bg video {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            min-width: 100vw;
+            min-height: 100vh;
+            transform: translate(-50%, -50%);
+            object-fit: cover;
+            z-index: -1;
         }
 
         .login-overlay {
@@ -90,6 +98,12 @@
     </style>
 </head>
 <body>
+<div class="video-bg">
+    <video autoplay muted loop playsinline>
+        <source src="/video/login-bg.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+</div>
 <div class="login-overlay">
     <h2>WELCOME BACK, CHAMPION</h2>
     <form th:action="@{/auth/login}" method="post">
