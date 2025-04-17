@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>닉네임 마켓</title>
+</head>
+<body>
+<div class="content-container">
+
+  <!-- 로그인 안했을 때 -->
+  <div th:if="${session.user == null}" style="text-align: center; margin: 100px auto;">
+    <h2>로그인이 필요합니다</h2>
+    <a th:href="@{/auth/login}">
+      <button class="login-btn-modal">로그인하러가기</button>
+    </a>
+  </div>
+
+  <!-- 로그인 했을 때 -->
+  <div th:if="${session.user != null}">
+    <div id="auction-modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); z-index:999; justify-content:center; align-items:center;">
+      <div style="background:white; padding:40px 60px; border-radius:10px; text-align:center;">
+        <p style="margin-bottom:30px;">닉네임 경매 오픈 시간이 아닙니다.</p>
+        <button onclick="closeAuctionModal()" style="padding:10px 25px; background:#3453ff; color:white; border:none; border-radius:5px;">확인</button>
+      </div>
+    </div>
+
+
+    <script th:inline="javascript">
+      function closeAuctionModal() {
+        document.getElementById("auction-modal").style.display = "none";
+      }
+
+      window.addEventListener("DOMContentLoaded", function() {
+        const userLoggedIn = /*[[${session.user != null}]]*/ false;
+        if (userLoggedIn) {
+          document.getElementById("auction-modal").style.display = "flex";
+        }
+      });
+    </script>
+  </div>
+
+</div>
+</body>
+</html>

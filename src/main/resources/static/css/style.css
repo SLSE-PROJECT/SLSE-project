@@ -23,8 +23,53 @@ body {
     z-index: 1000;
 }
 
-.logo img {
-    height: 60px;
+/* 왼쪽 로고 */
+.header-left {
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+/* 가운데 메뉴바 */
+.header-center {
+    flex: 2;
+    text-align: center;
+}
+
+/* 오른쪽 버튼들 */
+.header-right {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    align-items: center;
+}
+
+/* 메뉴 스타일 */
+.top-nav ul {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin: 0;
+    padding: 0;
+    align-items: center;
+}
+
+.top-nav ul li a {
+    text-decoration: none;
+    color: #000;
+    font-weight: bold;
+    font-size: 16px;
+    padding: 10px 15px;
+    transition: all 0.2s ease;
+}
+
+.top-nav ul li a:hover,
+.top-nav ul li a.active {
+    color: #fff;
+    background-color: #111;
+    border-radius: 5px;
 }
 
 .login-btn {
