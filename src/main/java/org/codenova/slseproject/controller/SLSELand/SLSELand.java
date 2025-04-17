@@ -13,6 +13,6 @@ public class SLSELand {
     public String showPage(HttpServletRequest request, Model model) {
         CsrfToken token = (CsrfToken) request.getAttribute("_csrf");
         model.addAttribute("_csrf", token);
-        return "SLSELand/slseland"; // templates/slse-land.html 렌더링
+        return "SLSELand/slseland";
     }
 }
