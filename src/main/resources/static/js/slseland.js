@@ -30,3 +30,6 @@ function spinRoulette() {
             alert("룰렛 오류: " + err.message);
         });
 }
+function closeResultModal() {
+    document.getElementById("roulette-result-modal").style.display = 'none';
+}
