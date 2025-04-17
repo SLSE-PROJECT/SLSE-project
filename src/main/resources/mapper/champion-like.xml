@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.codenova.slseproject.repository.ChampionLikeRepository">
+
+    <insert id="insertLike">
+        INSERT INTO champion_like (user_id, champion_id) VALUES (#{userId}, #{championId})
+    </insert>
+
+    <delete id="deleteLike">
+        DELETE FROM champion_like WHERE user_id = #{userId} AND champion_id = #{championId}
+    </delete>
+
+    <select id="existsLike" resultType="boolean">
+        SELECT EXISTS (
+        SELECT 1 FROM champion_like WHERE user_id = #{userId} AND champion_id = #{championId}
+        )
+    </select>
+    <select id="selectLikedChampionIds" resultType="string">
+        SELECT champion_id FROM champion_like WHERE user_id = #{userId}
+    </select>
+
+</mapper>
