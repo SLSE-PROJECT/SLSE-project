@@ -40,6 +40,9 @@
     <select id="selectByWord" resultType="champion">
         select * from champion where id like #{word}
     </select>
+    <select id="searchByName" resultType="champion">
+        SELECT * FROM champion WHERE name LIKE #{word}
+    </select>
 
 
 </mapper>

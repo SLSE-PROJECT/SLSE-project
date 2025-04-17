@@ -1,6 +1,7 @@
 package org.codenova.slseproject.repository;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.codenova.slseproject.entity.Champion;
 
 import java.util.List;
@@ -18,5 +19,5 @@ public interface ChampionRepository {
   
     Champion findByName(String name);
 
-    List<Champion> selectByWord(String word);
+    List<Champion> searchByName(String word);
 }
