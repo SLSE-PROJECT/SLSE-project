@@ -258,8 +258,8 @@ function searchChampion() {
                             <img src="${heartSrc}" class="like-icon" style="width: 40px; height: 40px; object-fit: contain;">
                         </button>
                     </div>
-                    <div style="margin-top:5px; text-align: center;">${one.name}</div>
-                `;
+                    <div style="margin-top:5px; text-align: center;">${one.name}</div> 
+                  `;
 
                 card.addEventListener("click", (evt) => {
                     const data = evt.currentTarget.dataset;

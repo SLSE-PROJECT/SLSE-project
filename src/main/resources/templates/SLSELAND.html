@@ -1,9 +1,56 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+  <meta charset="UTF-8">
   <title>SLSE LAND</title>
+  <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-<h1>SLSE LAND - 도박 페이지 준비 중</h1>
+<!-- 상단 헤더 -->
+<div class="header">
+  <!-- 왼쪽 로고 -->
+  <div class="header-left">
+    <a th:href="@{/}"><img src="/img/SLSE-logo.png" alt="로고" style="height: 60px;"></a>
+  </div>
+
+  <!-- 중앙 메뉴 -->
+  <div class="header-center">
+    <nav class="top-nav">
+      <ul>
+        <li><a th:href="@{/}">구매</a></li>
+        <li><a th:href="@{/SLSELAND}" class="active">SLSE LAND</a></li>
+        <li><a th:href="@{/nicknamemarket}">닉네임 마켓</a></li>
+      </ul>
+    </nav>
+  </div>
+
+  <!-- 오른쪽 로그인/로그아웃 -->
+  <div class="header-right">
+    <div th:if="${session.user == null}">
+      <form th:action="@{/auth/login}">
+        <button class="login-btn">로그인</button>
+      </form>
+    </div>
+    <div th:if="${session.user != null}" class="custom-style-17">
+      <form th:action="@{/profile}"><button class="login-btn">프로필</button></form>
+      <form th:action="@{/auth/logout}"><button class="login-btn">로그아웃</button></form>
+    </div>
+  </div>
+</div>
+
+<!-- 로그인 안했을 경우 -->
+<div th:if="${session.user == null}" style="margin-top: 150px; text-align: center;">
+  <h2>로그인이 필요합니다</h2>
+  <a th:href="@{/auth/login}">
+    <button class="login-btn-modal">로그인하러가기</button>
+  </a>
+</div>
+
+<!-- 로그인한 경우 -->
+<div th:if="${session.user != null}" style="margin-top: 200px; text-align: center;">
+  <h2>🎲 SLSE LAND 도박장 페이지는 준비 중입니다!</h2>
+  <p style="margin-top: 20px; font-size: 16px; color: gray;">빠른 시일 내에 오픈 예정입니다. 기대해주세요!</p>
+</div>
+
 </body>
 </html>

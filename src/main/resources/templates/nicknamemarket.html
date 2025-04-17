@@ -1,29 +1,59 @@
+
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+  <meta charset="UTF-8">
   <title>닉네임 마켓</title>
+  <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-<div class="content-container">
-
-  <!-- 로그인 안했을 때 -->
-  <div th:if="${session.user == null}" style="text-align: center; margin: 100px auto;">
-    <h2>로그인이 필요합니다</h2>
-    <a th:href="@{/auth/login}">
-      <button class="login-btn-modal">로그인하러가기</button>
-    </a>
+<!-- 상단 헤더 -->
+<div class="header">
+  <!-- 왼쪽 로고 -->
+  <div class="header-left">
+    <a th:href="@{/}"><img src="/img/SLSE-logo.png" alt="로고" style="height: 60px;"></a>
   </div>
 
-  <!-- 로그인 했을 때 -->
-  <div th:if="${session.user != null}">
-    <div id="auction-modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); z-index:999; justify-content:center; align-items:center;">
-      <div style="background:white; padding:40px 60px; border-radius:10px; text-align:center;">
-        <p style="margin-bottom:30px;">닉네임 경매 오픈 시간이 아닙니다.</p>
-        <button onclick="closeAuctionModal()" style="padding:10px 25px; background:#3453ff; color:white; border:none; border-radius:5px;">확인</button>
-      </div>
+  <!-- 중앙 메뉴 -->
+  <div class="header-center">
+    <nav class="top-nav">
+      <ul>
+        <li><a th:href="@{/}">구매</a></li>
+        <li><a th:href="@{/SLSELAND}">SLSE LAND</a></li>
+        <li><a th:href="@{/nicknamemarket}" class="active">닉네임 마켓</a></li>
+      </ul>
+    </nav>
+  </div>
+
+  <!-- 오른쪽 로그인/로그아웃 -->
+  <div class="header-right">
+    <div th:if="${session.user == null}">
+      <form th:action="@{/auth/login}">
+        <button class="login-btn">로그인</button>
+      </form>
     </div>
+    <div th:if="${session.user != null}" class="custom-style-17">
+      <form th:action="@{/profile}"><button class="login-btn">프로필</button></form>
+      <form th:action="@{/auth/logout}"><button class="login-btn">로그아웃</button></form>
+    </div>
+  </div>
+</div>
 
+<!-- 로그인 안한 경우 -->
+<div th:if="${session.user == null}" style="margin-top: 150px; text-align: center;">
+  <h2>로그인이 필요합니다</h2>
+  <a th:href="@{/auth/login}">
+    <button class="login-btn-modal">로그인하러가기</button>
+  </a>
+</div>
 
+<!-- 로그인 했지만 마켓은 아직 미오픈 -->
+<div th:if="${session.user != null}" style="margin-top: 200px; display: flex; justify-content: center; align-items: center;">
+  <div style="background:white; padding:40px 60px; border-radius:10px; text-align:center; box-shadow: 0 0 10px rgba(0,0,0,0.2);">
+    <p style="margin-bottom:30px; font-size: 18px;">닉네임 경매 오픈 시간이 아닙니다.</p>
+    <button onclick="history.back()" style="padding:10px 25px; background:#3453ff; color:white; border:none; border-radius:5px;">확인</button>
+  </div>
+</div>
     <script th:inline="javascript">
       function closeAuctionModal() {
         document.getElementById("auction-modal").style.display = "none";
@@ -36,8 +66,6 @@
         }
       });
     </script>
-  </div>
 
-</div>
 </body>
 </html>
