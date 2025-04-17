@@ -246,9 +246,11 @@ function searchChampion() {
                 card.dataset.imageUrl = one.imageUrl;
                 card.dataset.price = one.price;
 
-                const heartSrc = likedChampionIds.includes(one.id)
-                    ? "/img/heart-pink.png"
-                    : "/img/heart-border.png";
+                const heartMap = {
+                    true: "/img/heart-pink.png",
+                    false: "/img/heart-border.png"
+                };
+                const heartSrc = heartMap[likedChampionIds.includes(one.id)];
 
                 card.innerHTML = `
                     <div style="position: relative;">
@@ -321,9 +323,10 @@ function applySort() {
                 card.dataset.imageUrl = one.imageUrl;
                 card.dataset.price = one.price;
 
-                const heartSrc = likedChampionIds.includes(one.id)
-                    ? "/img/heart-pink.png"
-                    : "/img/heart-border.png";
+                let heartSrc = "/img/heart-border.png";
+                if (likedChampionIds.includes(one.id)) {
+                    heartSrc = "/img/heart-pink.png";
+                }
 
                 card.innerHTML = `
                     <div style="position: relative;">
