@@ -1,6 +1,5 @@
 package org.codenova.slseproject.controller.SLSELand;
 
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.codenova.slseproject.entity.User;
 import org.codenova.slseproject.entity.vo.RouletteResult;
@@ -11,8 +10,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.SessionAttribute;
-
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/roulette")
