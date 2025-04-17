@@ -300,10 +300,15 @@ function applySort() {
     const value = document.getElementById("sort-option").value;
     const [type, sort] = value.split("-");
 
-    fetch(`/sort?type=${type}&sort=${sort}`)
+    fetch("/api/like/my")
         .then(res => res.json())
-        .then(data => {
-            const listBox = document.getElementById('champion-list');
+        .then(likedChampionIds => {
+            return fetch(`/sort?type=${type}&sort=${sort}`)
+                .then(res => res.json())
+                .then(data => ({ likedChampionIds, data }));
+        })
+        .then(({ likedChampionIds, data }) => {
+            const listBox = document.getElementById("champion-list");
             listBox.innerHTML = "";
 
             data.forEach(one => {
@@ -316,11 +321,22 @@ function applySort() {
                 card.dataset.imageUrl = one.imageUrl;
                 card.dataset.price = one.price;
 
+                const heartSrc = likedChampionIds.includes(one.id)
+                    ? "/img/heart-pink.png"
+                    : "/img/heart-border.png";
+
                 card.innerHTML = `
-                    <img src="${one.imageUrl}">
-                    <div class="custom-style-14">${one.name}</div>
+                    <div style="position: relative;">
+                        <img src="${one.imageUrl}" style="width: 200px; height: 200px; object-fit: cover;">
+                        <button class="like-btn" data-id="${one.id}"
+                            style="position: absolute; bottom: 5px; left: 5px; background: none; border: none; cursor: pointer;">
+                            <img src="${heartSrc}" class="like-icon" style="width: 40px; height: 40px; object-fit: contain;">
+                        </button>
+                    </div>
+                    <div style="margin-top:5px; text-align: center;">${one.name}</div>
                 `;
 
+                // 상세 모달 이벤트 바인딩
                 card.addEventListener('click', (evt) => {
                     const data = evt.currentTarget.dataset;
                     document.getElementById("modal-name").innerText = data.name;
@@ -328,7 +344,7 @@ function applySort() {
                     document.getElementById("modal-blurb").innerText = data.blurb;
                     document.getElementById("modal-img").src = data.imageUrl;
                     document.getElementById("modal-champion-id").value = data.id;
-                    if(document.getElementById("modal-price")) {
+                    if (document.getElementById("modal-price")) {
                         document.getElementById("modal-price").innerText = parseInt(data.price).toLocaleString() + ' SLSE';
                     }
                     document.getElementById("overlay").style.display = 'block';
@@ -337,6 +353,23 @@ function applySort() {
                 });
 
                 listBox.appendChild(card);
+            });
+
+            // 좋아요 버튼 이벤트 바인딩
+            document.querySelectorAll(".like-btn").forEach(btn => {
+                btn.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    const championId = btn.dataset.id;
+
+                    fetch(`/api/like/${championId}`, {
+                        method: "POST"
+                    })
+                        .then(res => res.text())
+                        .then(result => {
+                            const img = btn.querySelector(".like-icon");
+                            img.src = (result === "liked") ? "/img/heart-pink.png" : "/img/heart-border.png";
+                        });
+                });
             });
         });
 }
