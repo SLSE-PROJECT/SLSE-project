@@ -13,8 +13,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -122,6 +125,21 @@ public class ChampionAPIService {
         post.setContent(content);
         post.setUpdatedAt(LocalDateTime.now()); // ✅ 수정 시간 기록
         championPostRepository.updatePost(content, championPostId);
+    }
+    // 검색기능
+    public List<Map<String, Object>> searchByName(String keyword) {
+        List<Champion> result = championRepository.searchByName(keyword + "%");
+
+        return result.stream().map(champ -> {
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", champ.getId());
+            map.put("name", champ.getName());
+            map.put("title", champ.getTitle());
+            map.put("blurb", champ.getBlurb());
+            map.put("imageUrl", champ.getImageUrl());
+            map.put("price", champ.getPrice());
+            return map;
+        }).collect(Collectors.toList());
     }
 
 }

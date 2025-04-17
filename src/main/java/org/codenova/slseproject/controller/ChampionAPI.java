@@ -3,6 +3,7 @@ package org.codenova.slseproject.controller;
 import lombok.AllArgsConstructor;
 import org.codenova.slseproject.entity.ChampionPost;
 import org.codenova.slseproject.entity.User;
+import org.codenova.slseproject.repository.ChampionRepository;
 import org.codenova.slseproject.service.ChampionAPIService;
 import org.springframework.web.bind.annotation.*;
 
@@ -79,4 +80,9 @@ public class ChampionAPI {
             return map;
         }).collect(Collectors.toList());
     }
+    @GetMapping("/search")
+    public List<Map<String, Object>> searchChampions(@RequestParam("word") String word) {
+        return championAPIService.searchByName(word);
+    }
+
 }
