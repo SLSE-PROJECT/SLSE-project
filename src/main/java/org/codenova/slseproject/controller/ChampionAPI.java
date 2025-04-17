@@ -21,8 +21,7 @@ public class ChampionAPI {
 
     // 챔피언 구매
     @GetMapping("/buy")
-    public String buy(@SessionAttribute("user") Optional<User> user,
-                      @RequestParam("champion-id") String championId) {
+    public String buy(@SessionAttribute("user") Optional<User> user, @RequestParam("champion-id") String championId) {
         return championAPIService.buy(user, championId);
     }
 
