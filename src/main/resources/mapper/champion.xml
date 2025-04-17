@@ -12,6 +12,22 @@
         SELECT * FROM champion
     </select>
 
+    <select id="selectNameAsc" resultType="champion">
+        select * from champion order by name asc;
+    </select>
+
+    <select id="selectNameDesc" resultType="champion">
+        select * from champion order by name desc;
+    </select>
+
+    <select id="selectPriceAsc" resultType="champion">
+        select * from champion order by price asc;
+    </select>
+
+    <select id="selectPriceDesc" resultType="champion">
+        select * from champion order by price desc;
+    </select>
+
 
     <select id="findByChampionId" resultType="champion">
         SELECT * FROM champion WHERE id = #{championId}
@@ -24,4 +40,6 @@
     <select id="selectByWord" resultType="champion">
         select * from champion where id like #{word}
     </select>
+
+
 </mapper>

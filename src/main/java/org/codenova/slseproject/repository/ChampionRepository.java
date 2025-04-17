@@ -9,6 +9,10 @@ import java.util.List;
 public interface ChampionRepository {
 
     List<Champion> findAll();
+    List<Champion> selectNameAsc();
+    List<Champion> selectNameDesc();
+    List<Champion> selectPriceAsc();
+    List<Champion> selectPriceDesc();
 
     Champion findByChampionId(String championId);
   

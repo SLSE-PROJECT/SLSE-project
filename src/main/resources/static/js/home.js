@@ -1,107 +1,4 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>SLSE-SHOP</title>
-    <link rel="stylesheet" href="/css/style.css">
-</head>
-<body>
-<!-- 헤더 -->
-<div class="header">
-    <div class="logo">
-        <a th:href="@{/}"><img src="/img/SLSE-logo.png" alt="로고"></a>
-    </div>
-    <div th:if="${session.user == null}">
-        <form th:action="@{/auth/login}">
-            <button class="login-btn">로그인</button>
-        </form>
-    </div>
-    <div th:if="${session.user != null}" class="custom-style-17">
-        <form th:action="@{/profile}"><button class="login-btn">프로필</button></form>
-        <form th:action="@{/auth/logout}"><button class="login-btn">로그아웃</button></form>
-    </div>
-</div>
-
-<!-- 배너 -->
-<div class="banner-container">
-    <div class="banner-slide" id="banner-slide">
-        <img src="/img/banner1.png"><img src="/img/banner2.png"><img src="/img/banner3.png">
-    </div>
-    <button class="banner-btn banner-prev" onclick="prevSlide()">&lt;</button>
-    <button class="banner-btn banner-next" onclick="nextSlide()">&gt;</button>
-</div>
-
-<!-- 정렬 메뉴 -->
-<div class="sort-bar">
-    <select id="sort-option" onchange="applySort()">
-        <option value="name-asc">이름 오름차순</option>
-        <option value="name-desc">이름 내림차순</option>
-        <option value="price-asc">가격 오름차순</option>
-        <option value="price-desc">가격 내림차순</option>
-    </select>
-</div>
-
-<!-- 본문 -->
-<div class="content-container">
-    <div class="category-wrap">
-        <div class="category-box" id="category-box">
-            <h3>카테고리</h3>
-            <ul><li>전체</li><li>원거리</li><li>근거리</li></ul>
-        </div>
-        <button id="toggle-btn" class="category-toggle-btn" onclick="toggleCategory()">◀</button>
-    </div>
-    <div class="champion-list-box" id="champion-list">
-
-        <div class="champion-card" th:each="one : ${champions}" th:data-id="${one.id}" th:data-name="${one.name}"
-             th:data-title="${one.title}" th:data-blurb="${one.blurb}" th:data-image-url="${one.imageUrl}" th:data-price="${one.price}">
-            <img th:src="${one.imageUrl}" class="champion-card-img">
-            <div th:text="${one.name}" class="custom-style-14"></div>
-
-        </div>
-    </div>
-</div>
-
-<!-- 모달 -->
-<div id="overlay" class="custom-style-6" onclick="closeModal()"></div>
-<div id="champion-modal" class="custom-style-4">
-    <div class="custom-style-7">
-        <h2 id="modal-name"></h2>
-        <button onclick="closeModal()" class="custom-style-11">X</button>
-    </div>
-    <div class="custom-style-3">
-        <input id="modal-champion-id" type="hidden" name="champion-id">
-        <img id="modal-img" class="custom-style-5">
-        <div>
-            <h3 id="modal-title"></h3>
-            <p id="modal-blurb" class="custom-style-16"></p>
-            <div class="custom-style-10" th:if="${session.user == null}">
-                <a th:href="@{/auth/login}"><button class="login-btn-modal">로그인하러가기</button></a>
-            </div>
-            <div class="custom-style-10"
-                 th:unless="${session.user == null}">
-                <button id="action-btn" class="login-btn-modal">구매하기</button>
-                <span id="modal-price" class="custom-style-12"></span>
-
-            </div>
-        </div>
-    </div>
-    <!-- 댓글 영역 -->
-    <div class="custom-style-15">
-        <h4 class="custom-style-8">댓글</h4>
-        <div th:unless="${session.user == null}">
-            <textarea id="comment-content" placeholder="댓글을 입력하세요" class="custom-style-9"></textarea>
-            <button onclick="submitComment()" class="custom-style-18">등록</button>
-        </div>
-        <div id="comment-list" class="custom-style-19"></div>
-    </div>
-</div>
-
-
-<script src="/js/home.js"></script>
-
-<script>
-
-    function closeModal() {
+function closeModal() {
 
         document.getElementById("overlay").style.display = 'none';
         document.getElementById("champion-modal").style.display = 'none';
@@ -173,7 +70,7 @@
                             <button onclick="deleteComment(${comment.id})">🗑</button>` : ''}
                         <br>
                         <div id="comment-content-${comment.id}">${comment.content}</div>
-                        <small style="color:gray;">${comment.createdAt}</small>
+                        <small class="custom-style-2">${comment.createdAt}</small>
                     `;
                     list.appendChild(div);
                 });
@@ -212,7 +109,7 @@
     function editComment(id, content) {
         const container = document.getElementById(`comment-content-${id}`);
         container.innerHTML = `
-            <textarea id="edit-content-${id}" style="width:100%;">${content}</textarea>
+            <textarea id="edit-content-${id}" class="custom-style-13">${content}</textarea>
             <button onclick="submitEdit(${id})">수정 완료</button>
         `;
     }
@@ -286,36 +183,48 @@
         showSlide(currentIndex);
 
     }
-    document.addEventListener("DOMContentLoaded", () => {
-        fetch("/api/like/my")
+
+    function applySort() {
+        const value = document.getElementById("sort-option").value;
+        const [type, sort] = value.split("-");
+
+        fetch(`/sort?type=${type}&sort=${sort}`)
             .then(res => res.json())
-            .then(likedIds => {
-                document.querySelectorAll(".like-btn").forEach(btn => {
-                    const champId = btn.dataset.id;
-                    if (likedIds.includes(champId)) {
-                        const img = btn.querySelector(".like-icon");
-                        img.src = "/img/heart-pink.png";
-                    }
+            .then(data => {
+                const listBox = document.getElementById('champion-list');
+                listBox.innerHTML = "";
+
+                data.forEach(one => {
+                    const card = document.createElement("div");
+                    card.className = "champion-card";
+                    card.dataset.id = one.id;
+                    card.dataset.name = one.name;
+                    card.dataset.title = one.title;
+                    card.dataset.blurb = one.blurb;
+                    card.dataset.imageUrl = one.imageUrl;
+                    card.dataset.price = one.price;
+
+                    card.innerHTML = `
+                    <img src="${one.imageUrl}">
+                    <div class="custom-style-14">${one.name}</div>
+                `;
+
+                    card.addEventListener('click', (evt) => {
+                        const data = evt.currentTarget.dataset;
+                        document.getElementById("modal-name").innerText = data.name;
+                        document.getElementById("modal-title").innerText = data.title;
+                        document.getElementById("modal-blurb").innerText = data.blurb;
+                        document.getElementById("modal-img").src = data.imageUrl;
+                        document.getElementById("modal-champion-id").value = data.id;
+                        if(document.getElementById("modal-price")) {
+                            document.getElementById("modal-price").innerText = parseInt(data.price).toLocaleString() + ' SLSE';
+                        }
+                        document.getElementById("overlay").style.display = 'block';
+                        document.getElementById("champion-modal").style.display = 'block';
+                        loadComments();
+                    });
+
+                    listBox.appendChild(card);
                 });
             });
-
-        document.querySelectorAll(".like-btn").forEach(btn => {
-            btn.addEventListener("click", (e) => {
-                e.stopPropagation();
-                const championId = btn.dataset.id;
-
-                fetch(`/api/like/${championId}`, {
-                    method: "POST"
-                })
-                    .then(res => res.text())
-                    .then(result => {
-                        const img = btn.querySelector(".like-icon");
-                        img.src = (result === "liked") ? "/img/heart-pink.png" : "/img/heart-border.png";
-                    });
-            });
-        });
-    });
-
-</script>
-</body>
-</html>
+    }
