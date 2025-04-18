@@ -28,4 +28,11 @@
         <select id="alreadyOwned" resultType="userChampion">
                 select * from user_champion where user_id = #{userId} and champion_id = #{championId}
         </select>
+
+        <update id="update" parameterType="userChampion">
+                UPDATE user_champion
+                SET quantity = #{quantity},
+                grade = #{grade}
+                WHERE user_id = #{userId} AND champion_id = #{championId}
+        </update>
 </mapper>

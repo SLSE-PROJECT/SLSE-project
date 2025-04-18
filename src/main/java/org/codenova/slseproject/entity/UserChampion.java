@@ -17,4 +17,6 @@ public class UserChampion {
     private String title;
     private String imageUrl;
     private String blurb;
+    private int quantity;
+    private int grade;
 }

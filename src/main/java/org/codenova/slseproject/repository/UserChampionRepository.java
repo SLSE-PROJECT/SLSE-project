@@ -16,4 +16,6 @@ public interface UserChampionRepository {
     List<UserChampion> findByUserId(@Param("userId") int userId);
 
     UserChampion alreadyOwned(@Param("userId") Integer userId, @Param("championId") String championId);
+
+    void update(UserChampion userChampion);
 }
