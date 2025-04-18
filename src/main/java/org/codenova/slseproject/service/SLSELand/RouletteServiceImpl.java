@@ -26,7 +26,7 @@ public class RouletteServiceImpl implements RouletteService {
     @Override
     public RouletteResult spin(User user) {
 
-        int cost = 10000;
+        int cost = 1000;
 
         User dbUser = userRepository.selectById(user.getId());
         System.out.println(dbUser.toString());

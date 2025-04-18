@@ -23,52 +23,76 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class ChampionAPIService {
 
-    private final ChampionRepository championRepository;
-    private final UserChampionRepository userChampionRepository;
-    private final UserRepository userRepository;
-    private final ChampionPostRepository championPostRepository;
+    private ChampionRepository championRepository;
+    private UserChampionRepository userChampionRepository;
+    private UserRepository userRepository;
+    private ChampionPostRepository championPostRepository;
 
 
-    public String buy(Optional<User> user, String championId){
-
-        System.out.println(championRepository.findByChampionId(championId));
-
-        if(user.isEmpty()){
+    public String buy(Optional<User> user, String championId) {
+        if (user.isEmpty()) {
             return "failed";
         }
 
         Champion champion = championRepository.findByChampionId(championId);
-        if(champion == null){
+        if (champion == null) {
             return "failed";
         }
 
-        if(userChampionRepository.alreadyOwned(user.get().getId(), championId) != null){
+        int userId = user.get().getId();
+        int userSLSE = userRepository.selectById(userId).getSLSE();
+        int price = champion.getPrice();
+
+        if (userSLSE < price) {
             return "failed";
         }
 
-        if(user.get().getSLSE() < champion.getPrice()){
-            return "failed";
-        }
+        // SLSE 차감
+        userRepository.updateSLSE(userSLSE - price, userId);
 
-        int currentSLSE = userRepository.selectById(user.get().getId()).getSLSE();
-        Integer SLSE = currentSLSE - champion.getPrice();
-        userRepository.updateSLSE(SLSE, user.get().getId());
+        // 중복 여부 확인
+        UserChampion owned = userChampionRepository.alreadyOwned(userId, championId);
 
-        UserChampion userChampion = UserChampion.builder()
-                .userId(user.get().getId())
-                .championId(champion.getId())
-                .name(champion.getName())
-                .title(champion.getTitle())
-                .imageUrl(champion.getImageUrl())
-                .blurb(champion.getBlurb())
-                .build();
-        try {
-            userChampionRepository.insert(userChampion);
-        } catch (Exception e) {
-            System.out.println(e);
+        if (owned != null) {
+            owned.setQuantity(owned.getQuantity() + 1);
+            applyUpgradeLogic(owned); // 등급 계산 + 수량 리셋
+            userChampionRepository.update(owned);
+        } else {
+            UserChampion newChamp = UserChampion.builder()
+                    .userId(userId)
+                    .championId(champion.getId())
+                    .name(champion.getName())
+                    .title(champion.getTitle())
+                    .imageUrl(champion.getImageUrl())
+                    .blurb(champion.getBlurb())
+                    .quantity(1)
+                    .grade(1)
+                    .build();
+
+            userChampionRepository.insert(newChamp);
         }
 
         return "success";
+    }
+
+    private void applyUpgradeLogic(UserChampion champ) {
+        int quantity = champ.getQuantity();
+        int grade = champ.getGrade();
+
+        Map<Integer, Integer> requiredMap = Map.of(
+                1, 2,
+                2, 4,
+                3, 10,
+                4, 20
+        );
+
+        while (grade < 5 && quantity >= requiredMap.getOrDefault(grade, Integer.MAX_VALUE)) {
+            quantity = 0;  // 진화 시 수량 초기화
+            grade++;
+        }
+
+        champ.setQuantity(quantity);
+        champ.setGrade(grade);
     }
 
     // 댓글 리스트 반환
