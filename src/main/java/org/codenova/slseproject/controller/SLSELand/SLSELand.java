@@ -1,18 +1,23 @@
 package org.codenova.slseproject.controller.SLSELand;
 
-import org.springframework.security.web.csrf.CsrfToken;
 import jakarta.servlet.http.HttpServletRequest;
+import org.codenova.slseproject.entity.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.SessionAttribute;
+
+import java.util.Optional;
 
 @Controller
 public class SLSELand {
 
     @GetMapping("/slseland")
-    public String showPage(HttpServletRequest request, Model model) {
-        CsrfToken token = (CsrfToken) request.getAttribute("_csrf");
-        model.addAttribute("_csrf", token);
-        return "SLSELand/slseland"; // templates/slse-land.html 렌더링
+    public String showPage(@SessionAttribute("user") Optional<User> user, Model m) {
+        if(user.isEmpty()){
+            return "redirect:/auth/login";
+        }
+        m.addAttribute("user", user.get());
+        return "SLSELand/slseland";
     }
 }

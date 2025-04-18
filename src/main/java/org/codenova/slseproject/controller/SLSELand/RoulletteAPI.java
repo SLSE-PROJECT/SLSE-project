@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.SessionAttribute;
 public class RoulletteAPI {
 
     private final RouletteService rouletteService;
-    private final UserRepository userRepository;
 
     @PostMapping("/spin")
     public ResponseEntity<RouletteResult> spinRoulette(@SessionAttribute(value = "user", required = false) User user) {
