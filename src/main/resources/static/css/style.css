@@ -72,14 +72,14 @@ body {
     border-radius: 5px;
 }
 
-.login-btn {
-    padding: 8px 20px;
-    background: black;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
+    .login-btn {
+        padding: 8px 20px;
+        background: black;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
 
 .banner-container {
     position: relative;

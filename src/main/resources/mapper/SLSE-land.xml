@@ -32,6 +32,10 @@
         SELECT * FROM reward_item WHERE id = #{id}
     </select>
 
+    <select id="selectByUserId" resultType="userCoupon">
+        SELECT * FROM user_coupon WHERE user_id = #{userId}
+    </select>
+
     <insert id="insertUserItem">
         INSERT INTO user_item (user_id, item_id)
         VALUES (#{userId}, #{itemId})

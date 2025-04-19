@@ -1,11 +1,8 @@
 package org.codenova.slseproject.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.AllArgsConstructor;
-import org.codenova.slseproject.entity.Champion;
 import org.codenova.slseproject.entity.User;
 import org.codenova.slseproject.entity.UserChampion;
-import org.codenova.slseproject.repository.ChampionRepository;
 import org.codenova.slseproject.repository.UserChampionRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -34,6 +31,6 @@ public class Profile {
         model.addAttribute("user", user);
         model.addAttribute("champions", ownedChampions);
 
-        return "profile";
+        return "home/profile";
     }
 }
