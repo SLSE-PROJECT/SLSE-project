@@ -9,15 +9,14 @@ import lombok.AllArgsConstructor;
 import org.codenova.slseproject.entity.Champion;
 import org.codenova.slseproject.entity.User;
 import org.codenova.slseproject.repository.ChampionRepository;
+import org.codenova.slseproject.repository.RouletteRepository;
 import org.codenova.slseproject.repository.UserRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 @AllArgsConstructor
@@ -25,6 +24,7 @@ public class Home {
 
     private UserRepository userRepository;
     private ChampionRepository championRepository;
+    private RouletteRepository rouletteRepository;
 
     @RequestMapping("/")
     public String home(HttpSession session, HttpServletRequest request, Model m) throws JsonProcessingException {
@@ -61,7 +61,7 @@ public class Home {
 
         m.addAttribute("champions", championList);
 
-        return "home";
+        return "home/home";
     }
 
     @GetMapping("/auth/logout")
@@ -75,9 +75,24 @@ public class Home {
 
         return "redirect:/";
     }
-    @ResponseBody
-    @GetMapping("/api/champion/detail")
-    public Champion getChampionDetail(@RequestParam("name") String name) {
-        return championRepository.findByName(name);
+
+    @GetMapping("/nicknamemarket")
+    public String nicknamePage() {
+
+        return "home/nickname-market";
     }
+
+    @GetMapping("/repo")
+    public String repo(@SessionAttribute("user") Optional<User> user, Model m) {
+
+        if(user.isEmpty()) {
+            return "auth/login";
+        }
+
+        m.addAttribute("items", rouletteRepository.selectRewardItemById(user.get().getId()));
+        m.addAttribute("items", rouletteRepository.selectCouponByUserId(user.get().getId()));
+
+        return "home/repo";
+    }
+
 }

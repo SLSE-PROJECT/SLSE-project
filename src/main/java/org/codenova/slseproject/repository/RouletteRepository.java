@@ -22,6 +22,8 @@ public interface RouletteRepository {
 
     RewardItem selectRewardItemById(@Param("id") int id);
 
+    UserCoupon selectCouponByUserId(Integer userId);
+
     void insertUserItem(UserItem item);
 
     RewardItem selectRandomRewardItem();
