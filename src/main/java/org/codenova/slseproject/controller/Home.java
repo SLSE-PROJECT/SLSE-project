@@ -29,6 +29,8 @@ public class Home {
     @RequestMapping("/")
     public String home(HttpSession session, HttpServletRequest request, Model m) throws JsonProcessingException {
 
+        System.out.println(rouletteRepository.selectPointPool().getTotalAmount());
+
         if (session.getAttribute("user") == null) {
             Cookie[] cookies = request.getCookies();
             if (cookies != null) {
