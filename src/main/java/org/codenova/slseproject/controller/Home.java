@@ -61,6 +61,9 @@ public class Home {
 
         m.addAttribute("champions", championList);
 
+        User user = (User) session.getAttribute("user");
+        m.addAttribute("user", user);
+
         return "home/home";
     }
 
@@ -90,7 +93,7 @@ public class Home {
         }
 
         m.addAttribute("items", rouletteRepository.selectRewardItemById(user.get().getId()));
-        m.addAttribute("items", rouletteRepository.selectCouponByUserId(user.get().getId()));
+        m.addAttribute("coupons", rouletteRepository.selectCouponByUserId(user.get().getId()));
 
         return "home/repo";
     }

@@ -18,6 +18,6 @@ public class SLSELand {
             return "redirect:/auth/login";
         }
         m.addAttribute("user", user.get());
-        return "SLSELand/slseland";
+        return "SLSELand/slse-land";
     }
 }

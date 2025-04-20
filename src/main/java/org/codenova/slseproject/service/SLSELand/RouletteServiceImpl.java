@@ -23,6 +23,7 @@ public class RouletteServiceImpl implements RouletteService {
     private final UserRepository userRepository;
     private final Random random = new Random();
 
+
     @Override
     public RouletteResult spin(User user) {
 
@@ -34,6 +35,8 @@ public class RouletteServiceImpl implements RouletteService {
             System.out.println("잔액부족");
             throw new IllegalStateException("잔액이 부족합니다.");
         }
+
+
 
         // 1. SLSE 차감 및 포인트 풀 적립
         rouletteRepository.deductUserSLSE(user.getId(), cost);

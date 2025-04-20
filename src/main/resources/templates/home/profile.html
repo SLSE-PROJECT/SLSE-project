@@ -77,6 +77,7 @@
     <h2>개인 정보</h2>
     <p><strong>닉네임:</strong> <span th:text="${user.nickname}"></span></p>
     <p><strong>가입일:</strong> <span th:text="${#temporals.format(user.createAt, 'yyyy-MM-dd HH:mm')}"></span></p>
+    <p><strong>SLSE:</strong> <span th:text="${user.SLSE}"></span></p>
   </div>
 
   <!-- 보유 챔피언 리스트 -->
