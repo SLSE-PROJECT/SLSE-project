@@ -2,15 +2,14 @@ package org.codenova.slseproject.repository;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import org.codenova.slseproject.entity.SLSELand.RewardItem;
-import org.codenova.slseproject.entity.SLSELand.RouletteHistory;
-import org.codenova.slseproject.entity.SLSELand.UserCoupon;
-import org.codenova.slseproject.entity.SLSELand.UserItem;
+import org.codenova.slseproject.entity.SLSELand.*;
 
 @Mapper
 public interface RouletteRepository {
 
     void increasePointPool(@Param("amount") int amount);
+
+    PointPool selectPointPool();
 
     void insertHistory(RouletteHistory history);
 
