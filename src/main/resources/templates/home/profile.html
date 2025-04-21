@@ -191,17 +191,41 @@
     <p><strong>가입일:</strong> <span th:text="${#temporals.format(user.createAt, 'yyyy-MM-dd HH:mm')}"></span></p>
   </div>
 
-  <!-- 보유 챔피언 리스트 -->
   <h2>보유 챔피언</h2>
   <div class="champion-list">
     <div class="champion-card"
          th:each="champion : ${champions}"
          th:attr="data-name=${champion.name}, data-title=${champion.title}, data-blurb=${champion.blurb}, data-image=${champion.imageUrl}">
+
       <img th:src="${champion.imageUrl}" th:alt="${champion.name}">
       <h3 th:text="${champion.name}"></h3>
       <p th:text="${champion.title}"></p>
+
+      <!-- 현재 등급 표시 -->
+      <div class="grade-box">
+        <span th:text="'등급 ' + ${champion.grade}"></span>
+      </div>
+
+      <!-- 등급별로 업그레이드 수량 표시 -->
+      <div class="upgrade-progress" th:if="${champion.grade == 1}"
+           th:text="${champion.quantity} + ' / 2'"></div>
+
+      <div class="upgrade-progress" th:if="${champion.grade == 2}"
+           th:text="${champion.quantity} + ' / 4'"></div>
+
+      <div class="upgrade-progress" th:if="${champion.grade == 3}"
+           th:text="${champion.quantity} + ' / 10'"></div>
+
+      <div class="upgrade-progress" th:if="${champion.grade == 4}"
+           th:text="${champion.quantity} + ' / 20'"></div>
+
+      <!-- 최고 등급 표시 -->
+      <div class="max-grade-label" th:if="${champion.grade >= 5}">
+        최고 등급
+      </div>
     </div>
   </div>
+
 </div>
 
 <!-- 모달창 -->
