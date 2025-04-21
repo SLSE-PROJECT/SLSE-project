@@ -33,6 +33,7 @@
         <div th:if="${session.user != null}" class="custom-style-17">
             <form th:action="@{/profile}"><button class="login-btn">프로필</button></form>
             <form th:action="@{/auth/logout}"><button class="login-btn">로그아웃</button></form>
+            <span th:text="${user.SLSE}"></span> SLSE
         </div>
     </div>
 </div>
@@ -50,7 +51,6 @@
 <div style="text-align: center; margin: 30px 0;">
     <input type="text" id="search-input" placeholder="챔피언 이름 입력" style="padding: 6px 10px; font-size: 14px; width: 200px;">
     <button onclick="searchChampion()" style="padding: 5px 10px; font-size: 13px;">확인</button>
-    <span th:text="${user.SLSE}"/>SLSE
 </div>
 
 
