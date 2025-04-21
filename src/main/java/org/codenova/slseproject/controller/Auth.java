@@ -62,12 +62,13 @@ public class Auth {
 
 
         user.setEmail(email.getEmail());
+        user.setSLSE(200000);
         userRepository.create(user);
 
         System.out.println(user.getId());
 
         championService.getOrCreateUserChampions(user);
-        return "redirect:/";
+        return "redirect:/auth/login";
     }
     @GetMapping("/api/auth/nickname")
     @ResponseBody
