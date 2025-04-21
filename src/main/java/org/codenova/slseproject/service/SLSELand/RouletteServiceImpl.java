@@ -12,6 +12,7 @@ import org.codenova.slseproject.entity.vo.RouletteResult;
 import org.codenova.slseproject.repository.RouletteRepository;
 import org.codenova.slseproject.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Random;
 
@@ -23,20 +24,42 @@ public class RouletteServiceImpl implements RouletteService {
     private final UserRepository userRepository;
     private final Random random = new Random();
 
+    // ✅ point_pool 총 적립금 조회
+    @Override
+    public int getTotalPoint() {
+        return rouletteRepository.getTotalAmount();
+    }
 
+    // ✅ 응모권 사용 → 전체 point_pool 획득 (20% 확률)
+    @Override
+    @Transactional
+    public int applyForPoint(int userId) {
+        int couponCount = rouletteRepository.countUserCoupons(userId);
+        if (couponCount <= 0) return 0;
+
+        int totalAmount = rouletteRepository.getTotalAmount();
+        if (totalAmount <= 0) return 0;
+
+        // 확률 20%
+        if (Math.random() > 0.2) return 0;
+
+        // 성공!
+        rouletteRepository.decreasePointPool(totalAmount);
+        rouletteRepository.updateUserSLSE(userId, totalAmount);
+        rouletteRepository.consumeOneCoupon(userId);
+
+        return totalAmount;
+    }
+
+    // ✅ 룰렛 회전 로직
     @Override
     public RouletteResult spin(User user) {
-
         int cost = 1000;
 
         User dbUser = userRepository.selectById(user.getId());
-        System.out.println(dbUser.toString());
         if (dbUser.getSLSE() < cost) {
-            System.out.println("잔액부족");
             throw new IllegalStateException("잔액이 부족합니다.");
         }
-
-
 
         // 1. SLSE 차감 및 포인트 풀 적립
         rouletteRepository.deductUserSLSE(user.getId(), cost);
@@ -44,7 +67,6 @@ public class RouletteServiceImpl implements RouletteService {
 
         // 2. 보상 뽑기
         RewardOption reward = drawReward();
-
         String rewardType = reward.getType();
         int rewardValue = reward.getValue();
         String rewardName = null;
@@ -96,7 +118,7 @@ public class RouletteServiceImpl implements RouletteService {
             sum += r.getProbability();
             if (rand < sum) return r;
         }
-        return RewardOption.SLSE_5000; // fallback
+        return RewardOption.SLSE_5000;
     }
 
     @Getter

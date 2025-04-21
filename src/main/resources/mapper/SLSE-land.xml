@@ -46,4 +46,25 @@
         ORDER BY RAND()
         LIMIT 1
     </select>
+
+    <select id="getTotalAmount" resultType="int">
+        SELECT total_amount FROM point_pool WHERE id = 1
+    </select>
+
+    <!-- 적립금 감소 -->
+    <update id="decreasePointPool">
+        UPDATE point_pool
+        SET total_amount = total_amount - #{amount}
+        WHERE id = 1 AND total_amount >= #{amount}
+    </update>
+
+    <!-- 쿠폰 1장 삭제 -->
+    <delete id="consumeOneCoupon" parameterType="int">
+        DELETE FROM user_coupon WHERE user_id = #{userId} LIMIT 1
+    </delete>
+
+    <!-- 유저 쿠폰 수량 조회 -->
+    <select id="countUserCoupons" resultType="int">
+        SELECT COUNT(*) FROM user_coupon WHERE user_id = #{userId}
+    </select>
 </mapper>

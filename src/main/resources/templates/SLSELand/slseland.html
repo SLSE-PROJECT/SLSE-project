@@ -186,16 +186,72 @@
   <button class="spin-button" onclick="spinRoulette()">룰렛 돌리기</button>
 </div>
 
+<!-- 응모권 수량 -->
+<div style="margin-top: 10px; text-align: center;">
+  <h4 th:text="'보유 응모권: ' + ${couponCount} + '장'">쿠폰</h4>
+</div>
+
+<!-- 현재 적립금 표시 -->
+<div style="margin-top: 30px; text-align: center;">
+  <h3>현재 응모 적립금: <span id="total-point" th:text="${pointPool}">조회 중...</span> SLSE</h3>
+  <button class="spin-button" onclick="applyForPoint()">응모하기</button>
+</div>
+
 <div id="result-modal">
   <h2 id="result-text">당첨!</h2>
   <button class="spin-button" onclick="closeModal()">닫기</button>
 </div>
 
 <script>
-  const rewardSegments = [
+
+  // 적립금 조회
+  function fetchTotalPoint() {
+    fetch("/api/point/total")
+            .then(res => res.json())
+            .then(data => {
+              document.getElementById("total-point").innerText = data.totalAmount.toLocaleString();
+            });
+  }
+
+  // 응모 요청
+  function applyForPoint() {
+    fetch("/api/point/apply", {
+      method: "POST"
+    })
+            .then(res => res.json())
+            .then(data => {
+              if (data.success) {
+                alert(`축하합니다! ${data.amount.toLocaleString()} SLSE 당첨!`);
+              } else {
+                alert("기능 에러...수정중입니다. 업데이트 이후 시도해주세요(업데이트 안함 ㅅㄱ)");
+              }
+              fetchTotalPoint(); // 금액 갱신
+            })
+            .catch(err => {
+              alert("오류 발생: " + err.message);
+            });
+  }
+
+  // 진입 시 실행
+  fetchTotalPoint();
+
+  const originalRewards = [
     "5000 SLSE", "5000 SLSE", "10000 SLSE", "10000 SLSE", "20000 SLSE",
     "쿠폰 1개", "쿠폰 2개", "쿠폰 2개", "쿠폰 3개", "쿠폰 4개", "쿠폰 5개", "랜덤 챔피언"
   ];
+
+  // 🧠 서버 보상 이름 → 룰렛 표시 이름 매핑
+  const rewardNameMap = {
+    "적립금 응모권 1장": "쿠폰 1개",
+    "적립금 응모권 2장": "쿠폰 2개",
+    "적립금 응모권 3장": "쿠폰 3개",
+    "적립금 응모권 4장": "쿠폰 4개",
+    "적립금 응모권 5장": "쿠폰 5개",
+    "무작위 챔피언": "랜덤 챔피언"
+    // SLSE 금액은 동일 이름이라서 매핑 필요 없음
+  };
+
+  let rewardSegments = [];
   const canvas = document.getElementById("wheel");
   const ctx = canvas.getContext("2d");
   const centerX = canvas.width / 2;
@@ -206,12 +262,21 @@
   let spinning = false;
   let currentRotation = 0;
 
-  function drawWheel(rotation = 0) {
+  function shuffleArray(array) {
+    const result = array.slice();
+    for (let i = result.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [result[i], result[j]] = [result[j], result[i]];
+    }
+    return result;
+  }
+
+  function drawWheel(rewards, rotation = 0) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    const anglePerSeg = (Math.PI * 2) / rewardSegments.length;
+    const anglePerSeg = (Math.PI * 2) / rewards.length;
     let startAngle = 0;
 
-    for (let i = 0; i < rewardSegments.length; i++) {
+    for (let i = 0; i < rewards.length; i++) {
       ctx.beginPath();
       ctx.moveTo(centerX, centerY);
       ctx.fillStyle = colors[i % colors.length];
@@ -225,7 +290,7 @@
       ctx.textAlign = "right";
       ctx.fillStyle = "#111";
       ctx.font = "bold 14px Orbitron";
-      ctx.fillText(rewardSegments[i], radius - 10, 5);
+      ctx.fillText(rewards[i], radius - 10, 5);
       ctx.restore();
 
       startAngle += anglePerSeg;
@@ -236,13 +301,21 @@
     if (spinning) return;
     spinning = true;
 
+    rewardSegments = shuffleArray(originalRewards);
+    drawWheel(rewardSegments);
+
     fetch("/api/roulette/spin", { method: "POST" })
             .then(res => res.json())
             .then(data => {
-              const rewardName = data.rewardName;
-              const selectedIndex = rewardSegments.indexOf(rewardName);
+              // 서버 보상 이름 → 매핑된 이름 찾기
+              const serverReward = data.rewardName;
+              const normalizedReward = rewardNameMap[serverReward] || serverReward;
+
+              const selectedIndex = rewardSegments.indexOf(normalizedReward);
+
+              // 못 찾으면 alert 제거 → 그냥 콘솔로만
               if (selectedIndex === -1) {
-                alert("서버로부터 받은 보상명이 룰렛에 없음: " + rewardName);
+                console.warn("매핑된 보상 '" + normalizedReward + "' 이 룰렛 배열에 없음");
                 spinning = false;
                 return;
               }
@@ -261,15 +334,22 @@
                 const progress = Math.min(elapsed / duration, 1);
                 const ease = 1 - Math.pow(1 - progress, 3);
                 currentRotation = totalRotation * ease;
-
-                drawWheel(currentRotation);
+                drawWheel(rewardSegments, currentRotation);
 
                 if (progress < 1) {
                   requestAnimationFrame(animate);
                 } else {
-                  document.getElementById("result-text").innerText = `당첨: ${rewardName}`;
+                  document.getElementById("result-text").innerText = `당첨: ${serverReward}`;
                   document.getElementById("result-modal").style.display = 'block';
                   spinning = false;
+
+                  // ✅ 여기서 적립금 차감 처리
+                  if (data.rewardType === "slse" && data.rewardValue) {
+                    const pointElem = document.getElementById("total-point");
+                    const current = parseInt(pointElem.innerText.replace(/,/g, ""));
+                    const updated = Math.max(current - data.rewardValue, 0);
+                    pointElem.innerText = updated.toLocaleString();
+                  }
                 }
               }
 
@@ -285,8 +365,9 @@
     document.getElementById("result-modal").style.display = 'none';
   }
 
-  drawWheel();
-</script>
+  rewardSegments = shuffleArray(originalRewards);
+  drawWheel(rewardSegments);
 
+</script>
 </body>
 </html>
