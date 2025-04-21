@@ -4,11 +4,91 @@
   <meta charset="UTF-8">
   <title>My Profile</title>
   <style>
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 80px;
+      background: #fff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 40px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+    }
+
+    /* 왼쪽 로고 */
+    .header-left {
+      flex: 1;
+      display: flex;
+      align-items: center;
+    }
+
+    /* 가운데 메뉴바 */
+    .header-center {
+      flex: 2;
+      text-align: center;
+    }
+
+    /* 오른쪽 버튼들 */
+    .header-right {
+      flex: 1;
+      display: flex;
+      justify-content: flex-end;
+      align-items: flex-end;
+      padding-right:50px;
+    }
+    .custom-style-17 {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 8px;
+      padding-right: 20px;
+    }
+
+    /* 메뉴 스타일 */
+    .top-nav ul {
+      list-style: none;
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin: 0;
+      padding: 0;
+      align-items: center;
+    }
+
+    .top-nav ul li a {
+      text-decoration: none;
+      color: #000;
+      font-weight: bold;
+      font-size: 16px;
+      padding: 10px 15px;
+      transition: all 0.2s ease;
+    }
+
+    .top-nav ul li a:hover,
+    .top-nav ul li a.active {
+      color: #fff;
+      background-color: #111;
+      border-radius: 5px;
+    }
+
+    .login-btn {
+      padding: 8px 20px;
+      background: black;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
     .profile-container {
       max-width: 1000px;
       margin: 0 auto;
-      padding: 20px;
+      padding: 100px 20px 20px 20px; /* 상단 패딩 추가 */
     }
+
 
     .user-info {
       border: 1px solid #ccc;
@@ -52,23 +132,55 @@
       width: 100%; height: 100%;
       background: rgba(0,0,0,0.5);
       display: none;
-      z-index: 1000;
+      z-index: 2000; /* 헤더 위에 뜨게 */
     }
 
     #champion-detail {
       position: fixed;
-      top: 50%; left: 50%;
+      top: 55%; left: 50%;
       transform: translate(-50%, -50%);
       background: white;
       padding: 20px;
       border-radius: 8px;
       display: none;
       width: 400px;
-      z-index: 1001;
+      z-index: 3000; /* 오버레이 위에 뜨게 */
     }
   </style>
 </head>
 <body>
+<div class="header">
+  <!-- 왼쪽 로고 -->
+  <div class="header-left">
+    <a th:href="@{/static}"><img src="/img/SLSE-logo.png" alt="로고" style="height: 60px;"></a>
+  </div>
+
+  <!-- 가운데 메뉴 -->
+  <div class="header-center">
+    <nav class="top-nav">
+      <ul>
+        <li><a th:href="@{/}">구매</a></li>
+        <li><a th:href="@{/slseland}">SLSE LAND</a></li>
+        <li><a th:href="@{/nicknamemarket}">닉네임 마켓</a></li>
+      </ul>
+    </nav>
+  </div>
+
+  <!-- 오른쪽 버튼 -->
+  <div class="header-right">
+    <div th:if="${session.user == null}">
+      <form th:action="@{/auth/login}">
+        <button class="login-btn">로그인</button>
+      </form>
+    </div>
+    <div th:if="${session.user != null}" class="custom-style-17">
+      <form th:action="@{/profile}"><button class="login-btn">프로필</button></form>
+      <form th:action="@{/auth/logout}"><button class="login-btn">로그아웃</button></form>
+      <span th:text="${session.user.SLSE}"></span> SLSE
+    </div>
+  </div>
+</div>
+
 
 <div class="profile-container">
 
