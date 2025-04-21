@@ -33,7 +33,7 @@
         <div th:if="${session.user != null}" class="custom-style-17">
             <form th:action="@{/profile}"><button class="login-btn">프로필</button></form>
             <form th:action="@{/auth/logout}"><button class="login-btn">로그아웃</button></form>
-            <span th:text="${user.SLSE}"></span> SLSE
+            <span th:text="${session.user.SLSE}"></span> SLSE
         </div>
     </div>
 </div>
@@ -53,6 +53,7 @@
     <button onclick="searchChampion()" style="padding: 5px 10px; font-size: 13px;">확인</button>
 </div>
 
+
 <!-- 정렬 메뉴 -->
 <div class="sort-bar">
     <select id="sort-option" onchange="applySort()">
@@ -71,9 +72,6 @@
             <div class="category-ad">
                 <img src="/img/ad-category.png" alt="카테고리 광고" />
             </div>
-
-            <h3>카테고리</h3>
-            <ul><li>전체</li><li>원거리</li><li>근거리</li></ul>
         </div>
         <button id="toggle-btn" class="category-toggle-btn" onclick="toggleCategory()">◀</button>
     </div>
@@ -119,7 +117,6 @@
                  th:unless="${session.user == null}">
                 <button id="action-btn" class="login-btn-modal">구매하기</button>
                 <span id="modal-price" class="custom-style-12"></span>
-
             </div>
         </div>
     </div>
