@@ -8,10 +8,6 @@
         UPDATE point_pool SET total_amount = total_amount + #{amount} WHERE id = 1
     </update>
 
-    <select id="selectPointPool" resultType="pointPool">
-        select * from point_pool where id = 1
-    </select>
-
     <insert id="insertHistory">
         INSERT INTO roulette_history (user_id, reward_type, reward_value)
         VALUES (#{userId}, #{rewardType}, #{rewardValue})

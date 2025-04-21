@@ -1,6 +1,5 @@
 package org.codenova.slseproject.controller.SLSELand;
 
-import jakarta.servlet.http.HttpServletRequest;
 import org.codenova.slseproject.entity.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,6 +17,6 @@ public class SLSELand {
             return "redirect:/auth/login";
         }
         m.addAttribute("user", user.get());
-        return "SLSELand/slse-land";
+        return "slseland";
     }
 }

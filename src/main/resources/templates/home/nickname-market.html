@@ -54,18 +54,18 @@
     <button onclick="history.back()" style="padding:10px 25px; background:#3453ff; color:white; border:none; border-radius:5px;">확인</button>
   </div>
 </div>
-    <script th:inline="javascript">
-      function closeAuctionModal() {
-        document.getElementById("auction-modal").style.display = "none";
-      }
+<script th:inline="javascript">
+  function closeAuctionModal() {
+    document.getElementById("auction-modal").style.display = "none";
+  }
 
-      window.addEventListener("DOMContentLoaded", function() {
-        const userLoggedIn = /*[[${session.user != null}]]*/ false;
-        if (userLoggedIn) {
-          document.getElementById("auction-modal").style.display = "flex";
-        }
-      });
-    </script>
+  window.addEventListener("DOMContentLoaded", function() {
+    const userLoggedIn = /*[[${session.user != null}]]*/ false;
+    if (userLoggedIn) {
+      document.getElementById("auction-modal").style.display = "flex";
+    }
+  });
+</script>
 
 </body>
 </html>
