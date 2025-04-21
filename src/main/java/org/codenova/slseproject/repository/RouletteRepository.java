@@ -27,4 +27,12 @@ public interface RouletteRepository {
     void insertUserItem(UserItem item);
 
     RewardItem selectRandomRewardItem();
+
+    int getTotalAmount();
+
+    void decreasePointPool(@Param("amount") long amount);
+
+    void consumeOneCoupon(@Param("userId") int userId);
+
+    int countUserCoupons(@Param("userId") int userId);
 }
