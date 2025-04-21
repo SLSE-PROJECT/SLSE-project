@@ -3,7 +3,6 @@ package org.codenova.slseproject.controller.SLSELand;
 import lombok.RequiredArgsConstructor;
 import org.codenova.slseproject.entity.User;
 import org.codenova.slseproject.entity.vo.RouletteResult;
-import org.codenova.slseproject.repository.UserRepository;
 import org.codenova.slseproject.service.SLSELand.RouletteService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
