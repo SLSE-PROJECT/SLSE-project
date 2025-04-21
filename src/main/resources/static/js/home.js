@@ -370,3 +370,6 @@ function applySort() {
             });
         });
 }
+
+document.getElementById("body").onmousemove = function (event){
+}

@@ -29,6 +29,8 @@ public class Home {
     @RequestMapping("/")
     public String home(HttpSession session, HttpServletRequest request, Model m) throws JsonProcessingException {
 
+        User sessionUser = (User) session.getAttribute("user");
+
         if (session.getAttribute("user") == null) {
             Cookie[] cookies = request.getCookies();
             if (cookies != null) {
@@ -50,11 +52,19 @@ public class Home {
 
                         if (user != null) {
                             session.setAttribute("user", user);
+                            sessionUser = user; // 바로 아래에서 최신화에 쓸 수 있도록
                         }
                         break;
                     }
                 }
             }
+        }
+
+        // ✅ 세션에 유저가 있으면 최신 정보로 업데이트
+        if (sessionUser != null) {
+            User latestUser = userRepository.selectById(sessionUser.getId());
+            session.setAttribute("user", latestUser);
+            m.addAttribute("user", latestUser); // 타임리프에서도 사용 가능
         }
 
         List<Champion> championList = championRepository.findAll();
